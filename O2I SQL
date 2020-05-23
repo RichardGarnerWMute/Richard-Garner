@@ -1,0 +1,3371 @@
+--Create Stored Procedure _CEL_O2C_BRP_20200304
+
+--Drop Procedure prior to rebuilding
+DROP PROCEDURE "CELONIS"."_CEL_O2C_BRP";
+
+------------------------------------------------------------
+--Drop CELONIS Tables as required to enable the Stored Procedure to compile
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'OBJECT');
+
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'TMP_O2C_BRP_VBAK_VBAP');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', '_CEL_O2C_BRP_CASES');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_MARA');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_MARC');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBAP');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBAK');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBEP');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'TMP_O2C_BRP_VBFA');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBFA');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_LIPS');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_KNA1');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_KNB1');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_KNKK');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_KNVV');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBRP');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_NAST');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_LIKP');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBRK');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', '_CEL_O2C_BRP_ACTIVITIES');
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'TMP_O2C_BRP_CDHDR_CDPOS');
+
+
+------------------------------------------------------------
+CREATE PROCEDURE "CELONIS"."_CEL_O2C_BRP" ()
+	LANGUAGE SQLSCRIPT
+	SQL SECURITY INVOKER 
+	--DEFAULT SCHEMA <default_schema_name>
+	--READS SQL DATA 
+	AS
+BEGIN
+/********************************************************************************
+** Procedure:  _CEL_O2C_BRP
+** Create On:  20180401
+** Created By: Max Hoffman / Greg Zajac
+** Query Contents:
+NOTE:  As of 03/28/2019 the Contents were re-sequenced to buidl Tables prior to Activities
+**	BRP_01_01 - Drop Column Table CELONIS.TMP_O2C_BRP_VBAK_VBAP
+**	BRP_01_02 - Create Column Table CELONIS.TMP_O2C_BRP_VBAK_VBAP
+**	BRP_01_03 - DROP COLUMN TABLE: CELONIS._CEL_O2C_BRP_CASES
+**	BRP_01_04 - CREATE COLUMN TABLE:  CELONIS._CEL_O2C_BRP_CASES
+**	BRP_02_01 - DROP COLUMN TABLE: CELONIS.O2C_BRP_MARA
+**	BRP_02_02 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_MARA
+**	BRP_02_03 - DROP COLUMN TABLE: CELONIS.O2C_BRP_MARC
+**	BRP_02_04 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_MARC
+**	BRP_02_05 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBAK
+**	BRP_02_06 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBAK
+**	BRP_02_07 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBAP
+**	BRP_02_08 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBAP
+**	BRP_02_09 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBEP
+**	BRP_02_10 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBEP
+**  BRP_02_13 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBFA
+**  BRP_02_14 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBFA
+**  BRP_02_15 - DROP COLUMN TABLE: CELONIS.O2C_BRP_LIPS
+**  BRP_02_16 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_LIPS
+**	BRP_02_17 - DROP COLUMN TABLE: CELONIS.O2C_BRP_KNA1
+**	BRP_02_18 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_KNA1
+**	BRP_02_19 - DROP COLUMN TABLE: CELONIS.O2C_BRP_KNB1
+**	BRP_02_20 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_KNB1
+**	BRP_02_21 - DROP COLUMN TABLE: CELONIS.O2C_BRP_KNKK
+**	BRP_02_22 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_KNKK
+**	BRP_02_23 - DROP COLUMN TABLE: CELONIS.O2C_BRP_KNVV
+**	BRP_02_24 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_KNVV
+**	BRP_02_25 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBRP
+**	BRP_02_26 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBRP
+**	BRP_02_27 - DROP COLUMN TABLE: CELONIS.O2C_BRP_NAST
+**	BRP_02_28 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_NAST
+**  BRP_02_29 - DROP COLUMN TABLE: CELONIS.O2C_BRP_LIKP
+**  BRP_02_30 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_LIKP
+**  BRP_02_31 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBRK
+**  BRP_02_32 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBRK
+**	BRP_03_01 - Drop Column Table CELONIS._CEL_O2C_BRP_ACTIVITIES
+**	BRP_03_02 - Create Column Table CELONIS._CEL_O2C_BRP_ACTIVITIES
+**	BRP_03_03 - Drop Column Table CELONIS.TMP_O2C_BRP_CDHDR_CDPOS
+**	BRP_03_04 - Create Column Table CELONIS.TMP_O2C_BRP_CDHDR_CDPOS
+**	BRP_05_01 - Insert Activity:  'Create Quotation'
+**	BRP_05_02 - Insert Activity: 'Create Sales Order Item'
+**	BRP_05_03 - Insert 'Activity: Approve/Deny/Parially Approve Credit Checks' (Header)'
+**	BRP_05_04 - Insert Activity:  'Set Delivery Block (Header_Auto)'
+**	BRP_05_05 - Insert Activity: 'Set/Change/Remove Delivery Block (Header)'
+**	BRP_05_06 - Insert Activity: 'Set/Change/Remove Billing Blocks'
+**	BRP_05_07 - Insert Activity: Multiple Changes to Sales Order Item
+**	BRP_05_08 - Insert Activity: 'Set Delivery Block (Sched_Line_Auto)' - Set automatically upon Sales Order Item Create
+**	BRP_05_09 - Insert Activity: 'Set/Change/Remove Delivery Block (Sched_Line)'
+**	BRP_05_10 - Insert Activity: 'Create Delivery Documents'
+**	BRP_05_11 - Insert Activity: 'Record/Cancel Goods Issue'
+**	BRP_05_12 - Insert Activity: 'Create Billing Documents'
+**	BRP_05_13 - Insert Activity: 'Clear Invoice'
+**  BRP_05_14 - Insert Activity: 'Confirm Picking'/'WM Transfer Order Creation'
+**  BRP_05_15 - Insert Activity: 'Confirm Packing'
+**  BRP_05_16 - Insert Activity: 'Shipment Planned'
+**  BRP_05_17 - Insert Activity: 'WM TO Confirmation'
+**  BRP_05_18 - Insert Activity: 'Change Ship-To (Header)'
+**  BRP_05_19 - Insert Activity: 'Change Original Requested date'
+**  BRP_05_20 - Insert Activity: 'Create Subsequent Purchase Order'
+**  BRP_05_21 - Insert Activity: 'Change Payment Terms (Header)'
+**	BRP_06_01 - DELETE null EVENTTIME records from _CEL_O2C_BRP_ACTIVITIES
+**	BRP_06_02 - DELETE null ACTIVITY_EN records from _CEL_O2C_BRP_ACTIVITIES
+**	BRP_07_01 - Update CHANGED_TABLE_TEXT_EN  Table Name in _CEL_O2C_BRP_ACTIVITIES Table
+**	BRP_07_02 - Update CHANGED_FIELD_TEXT_EN Field Name in _CEL_O2C_BRP_ACTIVITIES Table
+**  BRP_07_03 - Update Material Change Indicator.
+**  BRP_07_04 - Update Shipping Country info for item specific Ship-Tos 
+**  BRP_08_01 - Calculate the Previous and Succeeding Block TIme events 
+**  BRP_09_01 - DROP COLUMN TABLE: CELONIS.TMP_O2C_BRP_VBFA
+**  BRP_09_02 - DROP COLUMN TABLE: CELONIS.TMP_O2C_BRP_VBAK_VBAP
+**
+**
+**
+****************************************************************
+**	Changelog:
+** 2018401 (Changed By: N/A) - Initial Release
+**
+** 20180828 (Changed By: J.Gerard) - Version 20180828
+**	BRP_02_06 Removed filter for VBAK.ERDAT >= '20170101'
+**  BRP_05_03 Added date check for Header activity >= Case ID creation date
+**  BRP_05_04 Added date check for Header activity >= Case ID creation date
+**  BRP_05_05 Added date check for Header activity >= Case ID creation date
+**  BRP_05_06 Added date check for Header activity >= Case ID creation date
+**  BRP_05_13 Revised Join statement for selecting 'Clear Invoice' activty date
+**
+**
+** 20190327 (Changed By: J.Gerard) - Version 20190327
+**  BRP_01_02 Revised selection date filter to select Cases with Create Date >= 20171001
+**  BRP_02_08 Revised selection date filter to select Cases with Create Date >= 20171001
+**  BRP_02_10 Revised selection date filter to select Cases with Create Date >= 20171001
+**  BRP_02_14 Revised selection date filter to select Cases with Create Date >= 20171001
+**  BRP_02_16 Revised selection date filter to select Cases with Create Date >= 20171001
+**  BRP_02_26 Revised selection date filter to select Cases with Create Date >= 20171001
+**  BRP_02_28 Revised selection date filter to select Cases with Create Date >= 20171001
+**  BRP_03_04 Revised selection date filter to select Cases with Create Date >= 20171001
+**  BRP_05_12 Revised selection date filter to select Cases with Create Date >= 20171001
+**  BRP_05_13 Revised selection date filter to select Cases with Create Date >= 20171001
+**
+**
+** 20190328 (Changed By: J.Gerard) - Version 20190328 
+**  BRP_01_01 Added TIMESTAMP VBAP_ERDAT for TMP Cases table
+**  BRP_01_01 Added VBAK.AUART (Sales Doc. Type) for enhanced selection
+**  BRP_01_01 Added MATNR and WERKS to Temp Cases table build 
+**  BRP_01_01 Added VBAK.VKORG, VBAK.VTWEG, VBAK.SPART for enhanced selection
+**  BRP_01_01 Added YYACCESS and AUTH_LEVEL for use in enabling authorizations
+**  BRP_01_01 Moved WHERE statements to JOIN statements
+**  BRP_02_01 Added table O2C_BRP_MARA for client-level Material Master data 
+**  BRP_02_01 Added table O2C_BRP_MARC for plant-level Material Master data
+**  BRP_02_06 Added KNVV.ZZCUST_SEGMENT for CUST_SEGMENT BRP data
+**  BRP_02_06 Added JOIN for KNVV to determine 'CUST_SEGMENT'
+**  BRP_02_08 Added fields SBG, GBE, PROD_FAMILY, MRP_CONTROLLER, and MRP_CONTROLLER_TEXT
+**  BRP_02_08 Revised statement for HON Fiscal Period declaration
+**  BRP_02_08 Added CAST statement for HON Fiscal Week
+**  BRP_02_08 Added LEFT JOIN for Fiscal Week assignment
+**  BRP_02_08 Added LEFT JOIN for MARC and MRP Controller
+**  BRP_02_08 Added LEFT JOIN for T024D and MRP Controller Name
+**  BRP_02_08 Added JOIN for VBAK to enable KNVV for ZZCUST_SEGMENT
+**  BRP_02_08  Added LEFT JOIN for KNVV to enable ZZCUST_SEGMENT
+**  BRP_02_14 Revised selection for O2C_BRP_VBFA to include both VBTYP_V = 'C' and VBTYP_N = 'C' with UNION of TMP_O2C_BRP_VBFA
+**  BRP_02_14 Removed CASES table JOIN and replaced with TMP_O2C_VBAK_VBAP JOIN
+**  BRP_02_15 Eliminated need for TMP_O2C_BRP_LIPS as replaced with O2C_BRP_LIPS derived from model-specific O2C_BRP_VBFA table containing records specific to TMP_O2C_BRP_VBAK_VBAP 
+**  BRP_02_16 Modified code to use O2C_BRP_VBFA created earlier in procedure sequence
+**  BRP_02_16 Replaced CELONIS_BRP.VBFA with O2C_BRP_VBFA with model-specific records
+**  BRP_02_16 Added VBTYP_N = 'T' to include Return Deliveries
+**  BRP_02_16 Removed LIPS.ERDAT date restriction since not necessary as O2C_BRP_VBFA already date restricted
+**  BRP_02_16 Modified code to use O2C_BRP_VBFA created previously with model-specific records
+**  BRP_02_24 Added table KNVV for addtional Customer Master Sales Data 
+**  BRP_02_26 Revised JOIN from CELONIS_BRP.VBFA to CELONIS.O2C_BRP_VBFA which contains model-specific records
+**  BRP_02_29 Added SQL for table O2C_BRP_LIKP to be used to check for valid Delivery and create Delivery ACTIVITY_EN for _CEL_O2C_ACTIVITIES
+**  BRP_02_30 Added O2C_BRP_LIKP to be used to check for valid Delivery and create Delivery ACTIVITY_EN.  Used only in Data Model/Not in Application (i.e. NO Global UNION view)
+**  BRP_02_31 Added SQL for table O2C_BRP_VBRK to be used to check for valid Billing and create Billing ACTIVITY_EN.  Used only in Data Model/Not in Application (i.e. NO Global UNION view)
+**  BRP_02_32 Added O2C_BRP_VBRK to be used to check for valid Billing and create Billing ACTIVITY_EN.  Used only in Data Model/Not in Application (i.e. NO Global UNION view)
+**  BRP_03_02 Added CHANGED_FROM/TO_TIMESTAMP fields to ACTIVITIES table
+**  BRP_03_02 Added REF_DOC_TYPE and REF_DOC_NO for additional information
+**  BRP_03_04 Moved WHERE statement to JOIN statements
+**  BRP_05_01 Added REF_DOC_TYPE" and "REF_DOC_NO" for Quotation details
+**  BRP_05_01 Added logic for REF_DOC_TYPE and REF_DOC_NO
+**  BRP_05_01 Revised JOIN from CELONIS_BRP.VBFA to CELONIS.O2C_BRP_VBFA which contains model-specific records
+**  BRP_05_01 Moved WHERE statement to JOIN statement statement
+**  BRP_05_03 Moved WHERE statement to JOIN statement statement
+**  BRP_05_03 Replaced CAST(DATE||TIME) with 'TMP_O2C_*_VBAK_VBAP'.'TS_VBAP_ERDAT'
+**  BRP_05_04 Removed the COALESCE for V_ORDERS.LIFSK which is current value at time of load
+**  BRP_05_04 Removed TVLST_CURRENT.VTEXT since JOIN for current value V_ORDERS.LIFSK no longer valid
+**  BRP_05_04 Removed LEFT JOIN for V_ORDERS.LIKSK which is no longer needed per above removal
+**  BRP_05_05 Moved WHERE statement to JOIN statement statementRemoved LEFT JOIN for V_ORDERS.LIKSK which is no longer needed per above removal
+**  BRP_05_05 Replaced CAST(DATE||TIME) with 'TMP_O2C_*_VBAK_VBAP'.'TS_VBAP_ERDAT'
+**  BRP_05_06 Moved WHERE statement to JOIN statement 
+**  BRP_05_06 Replaced CAST(DATE||TIME) with 'TMP_O2C_*_VBAK_VBAP'.'TS_VBAP_ERDAT'
+**  BRP_05_07 Moved WHERE statement to JOIN statement
+**  BRP_05_08 Removed the COALESCE for V_ORDERS.LIFSK which is current value at time of load
+**  BRP_05_08 Removed TVLST_CURRENT.VTEXT since JOIN for current value V_ORDERS.LIFSK no longer valid
+**  BRP_05_08 JOIN for V_ORDERS.LIFSK no longer required since field removed from above statement
+**  BRP_05_09 Moved WHERE statement to JOIN statement
+**  BRP_05_10 Added REF_DOC_TYPE" and "REF_DOC_NO" for Delivery details
+**  BRP_05_10 Added logic for REF_DOC_TYPE and REF_DOC_NO
+**  BRP_05_10 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records
+**  BRP_05_10 Moved WHERE statement to JOIN statement
+**  BRP_05_10 Modified JOIN to use O2C_BRP_LIPS containing model specific LIPS records
+**  BRP_05_10 Modified JOIN to use O2C_BRP_LIKP containing model specific LIKP records
+**  BRP_05_11 Added REF_DOC_TYPE" and "REF_DOC_NO" for Delivery details
+**  BRP_05_11 Added logic for REF_DOC_TYPE and REF_DOC_NO 
+**  BRP_05_11 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records
+**  BRP_05_11 Moved WHERE statement to JOIN statement
+**  BRP_05_11 Modified JOIN to use O2C_BRP_LIKP containing model specific LIKP records
+**  BRP_05_11 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records
+**  BRP_05_12 Added REF_DOC_TYPE" and "REF_DOC_NO" for Delivery details
+**  BRP_05_12 Added logic for REF_DOC_TYPE and REF_DOC_NO 
+**  BRP_05_12 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records
+**  BRP_05_12 Moved WHERE statement to JOIN statement
+**  BRP_05_12 Modified JOIN to use O2C_BRP_VBRK containing model specific VBRK records
+**  BRP_05_13 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records
+**  BRP_05_13 Moved WHERE statement to JOIN statement
+**  BRP_05_13 Modified JOIN to use O2C_BRP_VBRK containing model specific VBRK records
+**  BRP_09_01 Added DROP COLUMN TABLE:  CELONIS.TMP_O2C_BRP_VBFA
+**  BRP_09_01 Commented out DROP COLUMN table; Not utilized in this data model
+**  BRP_09_02 Added DROP COLUMN TABLE:  CELONIS.TMP_O2C_BRP_VBAK_VBAP
+**  BRP_09_02 Commented out DROP COLUMN table; keep for troubleshooting data model
+**
+**
+** 20190520 (Changed By: Srikumar / J.Gerard) - Version 20190520 **
+**  BRP_02_07 Added Price Change Reason Code and Description fields ZZOPRC & ZZOPRC_TEXT
+**  BRP_02_07 Added JOIN for O2C_BRP_ZOCOPRC for Price Change Reason Code 
+**
+** 20190703 Changed by Srikumar - Version 20190703
+**  BRP_02_05 - Added Customer PO type text field and JOIN for T176T table for PO Type text description value
+**	BRP_02_08 - Added Material Change Indicator (MATNR_CHG_IND) to identify SO line item material number have been changed.
+**  BRP_02_18 - Added Customer Account Group text field and JOIN for T077X for Acct Group Text Name value
+**
+**20190710 Changed By Richard Garner - Version 20190710
+**  
+**  BRP_05_14 - Add Capture of IM Pick Confirmation / WM TO creation Activity
+**  BRP_05_15 - Add Capture of IM Pack Confirmation
+**  BRP_05_16 - Add Capture of IM Shipment Planned
+**  BRP_05_17 - Add Capture of IM WM TO Confirmation
+**  BRP_03_04 - Add field 'LVSTK' (Overall WM Status) to support capture of WM TO Confirmation
+**  BRP_05_11 - Add Early Shipment activity in PGI activity capture
+** 	BRP_02_16 - Add columns for Early Shipment to LIPS (Delivery Item) Data
+**	BRP_07_03 - Add routine to update Material Change Indicator.
+**
+** 20190828 Changed by Srikumar / Richard- 
+**  BRP_01_02 - Added UNION ALL to add Sales Order Header Info to TMP_O2C_VBAK_VBAP table (removed)
+**  BRP_03_04 - Create Column Table CELONIS.TMP_O2C_BRP_CDHDR_CDPOS.  Included additional fields - KUNNR (Ship-to from VBPA table) and WMENG (Quantity from VBEP table) to be captured from CDPOS table
+**  BRP_05_07 - Insert Activity: Multiple Changes to Sales OrderItem - Changes done to include additional activities - Change Quantity, Change Ship-to (Header & Schedule lines) and corresponding Sorting ID
+**  BRP_01_02 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_02_08 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_02_10 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_02_14 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_02_16 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_02_26 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_02_28 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_03_04 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_05_12 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_05_13 - Revised selection date filter to select Cases with Create Date >= Current - 18 Months
+**  BRP_05_18 - Add procedure to determine Header Level change to ship to.
+**
+**
+** 20191001 Changed by Richard Garner
+**
+**  BRP_05_19 - Add procedure to determine activity 'Change Original Requested date'.
+**	BRP_02_06 - Add table columns to VBAK for Account Manager
+**  BRP_05_09 - Correct Schedule-line delivery block duplication
+**	BRP_05_20 - Create Reoutine for "Create Subsequent Purchase Order'
+**	BRP_05_14 - Correct duplication of WM TO creation activity
+**
+**  20191112 Changes by Richard Garner
+**  BRP_03_04 - Add in capture of changes to Payment Terms
+**  BRP_05_06 - Correction to the changed feilds in billing blocks to be consistent
+**  BRP_05_07 - Add line to record payment terms changed at item level. 
+**  BRP_05_14 - Use only one status update for Pick Conf/WM TO - prevent duplication.
+**  BRP_05_21 - Add procedure to record payment terms changed at header level.
+**
+**  20191206 Changes by Richard Garner / 
+**  BRP_01_02 - Add new columns for Billing date and payment terms to Temp VBAK_VBAP Table
+**  BRP_01_04 - Add new columns for Billing date and payment terms to Temp CASES table
+**  BRP_02_08 - Add new columns for billing date and Payment terms to O2C_BRP_VBAP
+**  BRP_05_07 - Determine and record the days impact for change to payment terms (item)
+**  BRP_05_21 - Determine and record the days impact for change to payment terms (item)
+**
+**
+**	20200109 Changes By Sahas / Richard
+**	BRP_02_26 - Add More tables for from/to country
+**	BRP_02_32 - Add more tables for from/to country
+**  BRP_02_18 - Add new column Sold-To Country in KNA1 routine
+**  BRP_02_26 - Add new columns for Shipping Country into VBRP routine
+**  BRP_02_32 - Add new columns for Destination, Taxation Countries into VBRK routine
+**
+**
+**	20200304 Changes By Richard Garner
+**	BRP_02_06 - Include Sold From country Information
+**	BRP_02_08 - Include Shipped From/To country information
+**	BRP_02_30 - Add Delivery Type to Delivery Header
+**	BRP_05_10 - Check Delivery Type for Delivery Activity naming
+**	BRP_07_04 - Update Item Specific Ship-To
+** 	
+**
+**	20200420 Changes by Richard Garner
+**	BRP_02_08 - Add derivation of Manual Discount reason code and the corresponding description.
+**	
+**
+**
+**
+
+*/
+
+-----------------------------------------------------------
+--BRP_01_01 - Drop Column Table CELONIS.TMP_O2C_BRP_VBAK_VBAP
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'TMP_O2C_BRP_VBAK_VBAP');
+
+--BRP_01_02 - Create Column Table CELONIS.TMP_O2C_BRP_VBAK_VBAP
+CREATE COLUMN TABLE CELONIS.TMP_O2C_BRP_VBAK_VBAP AS (
+	SELECT DISTINCT
+		VBAK.MANDT
+		,VBAK.VBELN
+		,CAST(VBAP.ERDAT AS DATE) AS ERDAT
+		,CAST(VBAP.ERZET AS TIME) AS ERZET
+		,CAST(VBAK.ERDAT AS DATE) AS VBAK_ERDAT
+		,CAST(VBAK.ERZET AS TIME) AS VBAK_ERZET
+		--20190328 Added TIMESTAMP VBAP_ERDAT for TMP Cases table - J.Gerard
+		,CAST(CAST(VBAP.ERDAT AS DATE) || ' ' || CAST(VBAP.ERZET AS TIME) AS TIMESTAMP) AS "TS_VBAP_ERDAT"
+		,VBAK.VBTYP
+		--20190328 Added VBAK.AUART (Sales Doc. Type) for enhanced selection - J.Gerard
+		,VBAK.AUART
+		,VBAK.OBJNR
+		,VBAP.POSNR
+		--20190328 Added MATNR and WERKS to Temp Cases table build - J.Gerard
+		,VBAP.MATNR
+		,VBAP.WERKS
+		,VBAP.ERNAM
+		,VBAK.ERNAM AS VBAK_ERNAM
+		,VBAK.WAERK
+		,VBAP.NETWR
+		,VBAK.KUNNR
+		,VBAK.BUKRS_VF
+		--20190328 Added VBAK.VKORG, VBAK.VTWEG, VBAK.SPART for enhanced selection - J.Gerard
+		,VBAK.VKORG
+	    ,VBAK.VTWEG
+	    ,VBAK.SPART
+	    ,VBAK.LIFSK
+	    ,VBKD.ZTERM ----Added  by Vivekanandan 20191206
+		,VBKD.FKDAT ----Added  by Vivekanandan 20191206
+		,VBAK.MANDT || VBAK.VBELN || VBAP.POSNR AS "_CASE_KEY"
+		,VBAK.MANDT || VBAK.VBELN AS "TABKEY_VBAK"
+		--20190328 Added YYACCESS and AUTH_LEVEL for use in enabling authorizations - J.Gerard
+		,NULL AS "YYACCESS"
+		,'0' AS "AUTH_LEVEL"
+	FROM 
+	    CELONIS_BRP.VBAK AS VBAK
+		JOIN CELONIS_BRP.VBAP AS VBAP ON 1=1
+			AND VBAK.MANDT = VBAP.MANDT
+			AND VBAK.VBELN = VBAP.VBELN
+			--20190328 Moved WHERE statement to JOIN statement statements - J.Gerard
+			AND VBAK.VBTYP IN ('C','B') 
+			--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+--			AND VBAP.ERDAT >= '20171001'
+			AND VBAP.ERDAT >= add_months(add_days(last_day(current_date), -30), -18)
+	--20190328 Moved WHERE statement to JOIN statement statements - J.Gerard
+	--WHERE 1=1 
+	    --AND VBAK.VBTYP IN ('C', 'B')
+		--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+		--AND VBAP.ERDAT >= '20171001'
+	-- start of 20191206 get data from VBKD
+ 		LEFT JOIN CELONIS_BRP.VBKD AS VBKD ON 1=1
+		   AND VBKD.MANDT = VBAK.MANDT
+		   AND VBKD.VBELN = VBAK.VBELN
+		   AND IFNULL (VBKD.POSNR,'000000') = VBAP.POSNR
+	-- End of 20191206 get data from VBKD	   
+				
+)
+;
+
+----------------------------------------------------------------------
+--BRP_01_03 - DROP COLUMN TABLE: CELONIS._CEL_O2C_BRP_CASES
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', '_CEL_O2C_BRP_CASES');
+	
+--BRP_01_04 - CREATE COLUMN TABLE:  CELONIS._CEL_O2C_BRP_CASES
+CREATE COLUMN TABLE CELONIS._CEL_O2C_BRP_CASES AS
+	(SELECT DISTINCT 
+	    V._CASE_KEY
+	    ,V.MANDT
+	    ,V.VBELN
+	    ,V.POSNR
+	    ,V.WAERK
+	    ,V.NETWR
+	    ,V.FKDAT  -- 20191206
+	    ,V.ZTERM  -- 20191206
+	    ,CASE 
+	        WHEN V.WAERK = 'USD' THEN V.NETWR
+		    ELSE 
+		        CONVERT_CURRENCY(
+	        		amount => "V"."NETWR",
+	                "SOURCE_UNIT_COLUMN" =>  "V"."WAERK" ,
+	                "CONVERSION_TYPE" => 'A',
+	                "SCHEMA" => 'CELONIS_BRP',
+	                "TARGET_UNIT_COLUMN" => 'USD',
+	                "REFERENCE_DATE" => "V"."ERDAT",
+	                "ERROR_HANDLING" => 'set to null',
+	                "CLIENT" => "V"."MANDT")
+		 END AS NETWR_CONVERTED
+	FROM 
+	    CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V
+	WHERE
+	    V.VBTYP = 'C'
+)
+;
+
+--------------------------------------------------------------------
+-- CREATE COLUMN TABLES: MARA, MARC, VBAK, VBAP, VBEP, VBFA, LIPS, KNA1, KNB1, KNKK, KNVV, VBRP, NAST,
+
+--BRP_02_01 - Drop Column Table CELONIS.O2C_BRP_MARA
+CALL CELONIS.DROP_IF_EXISTS('CELONIS', 'O2C_BRP_MARA');
+
+--20190328 Added table O2C_BRP_MARA for client-level Material Master data - J.Gerard
+--BRP_02_02 - Create Column Table CELONIS.O2C_BRP_MARA
+CREATE COLUMN TABLE CELONIS.O2C_BRP_MARA AS(
+		SELECT DISTINCT
+			MARA.MANDT
+			,MARA.MATNR AS "MATNR_INT"
+			,MARA.MATNR
+			,MARA.LVORM
+			,MARA.MTART
+			,MARA.MATKL
+			,MARA.BISMT
+			,MARA.PRDHA
+		FROM CELONIS_BRP.MARA AS MARA
+		INNER JOIN CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V ON 1=1
+			AND V.MANDT = MARA.MANDT
+			AND V.MATNR = MARA.MATNR
+			AND V.VBTYP = 'C'
+ )
+ ;        	
+
+---------------------------------------------------------------
+-- BRP_02_03 - Drop Column Table CELONIS_BRP.O2C_BRP.MARC
+CALL CELONIS.DROP_IF_EXISTS('CELONIS', 'O2C_BRP_MARC');
+
+--20190328 Added table O2C_BRP_MARC for plant-level Material Master data - J.Gerard
+-- BRP_02_04 - Create Column Table CELONIS_BRP.O2C_BRP_MARC
+CREATE COLUMN TABLE CELONIS.O2C_BRP_MARC AS(
+		SELECT DISTINCT
+			MARC.MANDT
+			,MARC.MATNR AS "MATNR_INT"
+			,MARC.MATNR
+			,MARC.WERKS
+			,MARC.LVORM
+			,MARC.DISMM
+			,MARC.EKGRP
+			,MARC.DISPO
+			,MARC.PLIFZ
+			,MARC.BESKZ
+			,MARC.SOBSL
+			,MARC.STRGR
+			,MARC.WZEIT
+			,MARC.MTVFP
+			,MARC.ZZSLDAY as "SL_DAYS"
+		FROM CELONIS_BRP.MARC AS MARC
+		INNER JOIN CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V ON 1=1
+			AND V.MANDT = MARC.MANDT
+			AND V.MATNR = MARC.MATNR
+			AND V.WERKS = MARC.WERKS
+			AND V.VBTYP = 'C'
+)
+;
+
+-------------------------------------------------------------------
+--BRP_02_05 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBAK
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBAK');
+	
+--BRP_02_06 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBAK
+CREATE COLUMN TABLE CELONIS.O2C_BRP_VBAK AS (
+	SELECT DISTINCT 
+		VBAK."MANDT",
+		VBAK."VBELN",
+		VBAK."AUART",
+		VBAK."AUGRU",
+		VBAK."BUKRS_VF",
+	    CAST(VBAK.ERDAT AS DATE) AS ERDAT, 
+		CAST(VBAK.ERZET AS TIME) AS ERZET, 
+		VBAK."FAKSK",
+		VBAK."KKBER",
+		VBAK."KUNNR",
+		VBAK."LIFSK",
+		VBAK."OBJNR",
+		VBAK."SBGRP",
+		VBAK."SPART",
+		VBAK."VBTYP",
+		VBAK."VKBUR",
+		VBAK."VKGRP",
+		VBAK."VKORG",
+		VBAK."VSBED",
+		VBAK."VTWEG",
+		VBAK."ERNAM",
+		CAST(VBAK.ANGDT AS DATE) AS ANGDT, 
+		CAST(VBAK.BNDDT AS DATE) AS BNDDT, 
+		CAST(VBAK.AUDAT AS DATE) AS AUDAT, 
+		VBAK."TRVOG",
+		VBAK."NETWR",
+		VBAK."WAERK",
+	    CAST(VBAK.GUEBG AS DATE) AS GUEBG, 
+		CAST(VBAK.GUEEN AS DATE) AS GUEEN,
+		CAST(VBAK.VDATU AS DATE) AS VDATU, 
+		VBAK."BSTNK",
+		VBAK."BSARK",
+--20190703 Included Customer PO Account type text -- Srikumar
+		T176T."VTEXT",	    
+	    CAST(VBAK.BSTDK AS DATE) AS BSTDK, 
+		VBAK."IHREZ",
+		CAST(VBAK.AEDAT AS DATE) AS AEDAT, 
+		VBAK."KVGR1",
+		VBAK."KVGR2",
+		VBAK."KVGR3",
+		VBAK."KVGR4",
+		VBAK."KVGR5",
+		VBAK."VGBEL",
+		NULL AS"YYACCESS",
+		NULL AS "YYSERN",
+		NULL AS "YYACRG",
+		NULL AS "YYCRMCASE",
+		--20190328 Added KNVV.ZZCUST_SEGMENT for CUST_SEGMENT BRP data - J.Gerard
+		KNVV.ZZCUST_SEGMENT AS CUST_SEGMENT,
+	    CAST(VBAK.HB_RESDATE AS DATE) AS HB_RESDATE,  
+	    CAST(VBAK.GWLDT AS DATE) AS GWLDT, 
+	    CAST(VBAK.DAT_FZAU AS DATE) AS DAT_FZAU, 
+	    CAST(VBAK.FMBDAT AS DATE) AS FMBDAT, 
+	    CAST(VBAK.ABHOD AS DATE) AS ABHOD, 
+	    CAST(VBAK.MAHDT AS DATE) AS MAHDT, 
+	    CAST(VBAK.CMNUP AS DATE) AS CMNUP, 
+	    CAST(VBAK.HB_EXPDATE AS DATE) AS HB_EXPDATE,   
+	    CAST(VBAK.CMNGV AS DATE) AS CMNGV, 
+	    CAST(VBAK.CMFRE AS DATE) AS CMFRE, 
+	    CAST(VBAK.ABHOB AS TIME) AS ABHOB, 
+	    CAST(VBAK.ABHOV AS TIME) AS ABHOV, 
+	    CAST(VBAK.VZEIT AS TIME) AS VZEIT
+		,IFNULL(DD07T_VBTYP.DDTEXT,'') AS VBTYP_TEXT
+		,IFNULL(TVAKT.BEZEI,'') AS AUART_TEXT
+		,IFNULL(DD07T_KLIMP.DDTEXT,'') AS KLIMP_TEXT
+		,IFNULL(TVAUT.BEZEI,'') AS AUGRU_TEXT
+		,IFNULL(TVLST.VTEXT,'') AS LIFSP_TEXT
+		,IFNULL(TVFST.VTEXT,'') AS FAKSK_TEXT
+		,IFNULL(TVKOT.VTEXT,'') AS VKORG_TEXT
+		,IFNULL(TVTWT.VTEXT,'') AS VTWEG_TEXT
+		,IFNULL(TSPAT.VTEXT,'') AS SPART_TEXT
+		,IFNULL(TVGRT.BEZEI,'') AS VKGRP_TEXT
+		,IFNULL(TVKBT.BEZEI,'') AS VKBUR_TEXT
+		,IFNULL(TVSBT.VTEXT,'') AS VSBED_TEXT
+		,IFNULL(T014T.KKBTX,'') AS KKBER_TEXT
+		,IFNULL(T024B.STEXT,'') AS SBGRP_TEXT
+		,IFNULL(T001.BUTXT,'') AS BUKRS_TEXT
+		,'0' AS "AUTH_LEVEL"
+-- 20191001 start of - add columns for account manager
+		,NULL AS "ACCT MGR"
+		,NULL AS "ACCT MGR NAME"
+-- 20191001 end of - add columns for account manager
+-- 20200304 Start of Sold From country.
+		,T001.LAND1 AS "LAND1"
+		,T005T.LANDX AS "SOLD_FROM_CTRY"
+-- 20200304 End of Sold From country.
+
+	FROM 
+	    CELONIS_BRP.VBAK AS VBAK
+	    INNER JOIN CELONIS._CEL_O2C_BRP_CASES AS C ON
+	        VBAK.MANDT = C.MANDT
+	        AND VBAK.VBELN = C.VBELN
+	        AND VBAK.VBTYP = 'C'
+	        --20180828 Removed filter for VBAK.ERDAT >= '20170101'
+	        --AND VBAK.ERDAT >= '20170101'
+	    LEFT JOIN CELONIS_BRP.TVAKT AS TVAKT ON 1=1
+	        AND VBAK.MANDT = TVAKT.MANDT
+	    	AND VBAK.AUART = TVAKT.AUART 
+	    	AND TVAKT.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.TVLST ON 1=1
+	    	AND VBAK.MANDT = TVLST.MANDT
+	    	AND VBAK.LIFSK = TVLST.LIFSP
+	    	AND TVLST.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.TVFST ON 1=1
+	    	AND VBAK.MANDT = TVFST.MANDT
+	    	AND VBAK.FAKSK = TVFST.FAKSP
+	    	AND TVFST.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.TVKOT ON 1=1
+	    	AND VBAK.MANDT=TVKOT.MANDT
+	    	AND VBAK.VKORG = TVKOT.VKORG
+	    	AND TVKOT.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.TVTWT ON 1=1
+	    	AND VBAK.MANDT = TVTWT.MANDT
+	    	AND VBAK.VTWEG = TVTWT.VTWEG
+	    	AND TVTWT.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.TSPAT ON 1=1
+	    	AND VBAK.MANDT = TSPAT.MANDT
+	    	AND VBAK.SPART = TSPAT.SPART
+	    	AND TSPAT.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.TVGRT ON 1=1
+	    	AND VBAK.MANDT = TVGRT.MANDT
+	    	AND VBAK.VKGRP = TVGRT.VKGRP
+	    	AND TVGRT.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.TVKBT ON 1=1
+	    	AND VBAK.MANDT = TVKBT.MANDT
+	    	AND VBAK.VKBUR = TVKBT.VKBUR
+	    	AND TVKBT.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.T024B ON 1=1
+	    	AND VBAK.MANDT = T024B.MANDT
+	    	AND VBAK.KKBER = T024B.KKBER
+	    	AND VBAK.SBGRP = T024B.SBGRP
+	    LEFT JOIN CELONIS_BRP.T014T ON 1=1
+	    	AND VBAK.MANDT = T014T.MANDT
+	    	AND VBAK.KKBER = T014T.KKBER
+	    	AND T014T.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.DD07T AS DD07T_VBTYP ON 1=1
+	    	AND DD07T_VBTYP.DOMVALUE_L = VBAK.VBTYP
+	    	AND DD07T_VBTYP.DOMNAME = 'VBTYP'
+	    	AND DD07T_VBTYP.DDLANGUAGE = 'E' 
+	    LEFT JOIN CELONIS_BRP.TVAK AS TVAK ON 1=1
+	    	AND VBAK.MANDT = TVAK.MANDT 
+	    	AND VBAK.AUART = TVAK.AUART 
+	    LEFT JOIN CELONIS_BRP.DD07T AS DD07T_KLIMP ON 1=1
+	    	AND DD07T_KLIMP.DOMVALUE_L = TVAK.KLIMP 
+	    	AND DD07T_KLIMP.DOMNAME = 'KLIMP'
+	    	AND DD07T_KLIMP.DDLANGUAGE = 'E'
+	    LEFT JOIN CELONIS_BRP.TVAUT ON 1=1
+	    	AND VBAK.MANDT = TVAUT.MANDT
+	    	AND VBAK.AUGRU = TVAUT.AUGRU
+	    	AND TVAUT.SPRAS = 'E' 
+	    LEFT JOIN CELONIS_BRP.TVSBT ON 1=1
+	        AND VBAK.MANDT = TVSBT.MANDT 
+	    	AND VBAK.VSBED = TVSBT.VSBED 
+	    	AND TVSBT.SPRAS = 'E'
+	    LEFT JOIN CELONIS_BRP.T001 ON 1=1
+	        AND VBAK.MANDT = T001.MANDT
+	        AND VBAK.BUKRS_VF = T001.BUKRS
+	    --20190328 Added JOIN for KNVV to determine 'CUST_SEGMENT' - J.Gerard
+	    LEFT JOIN CELONIS_BRP.KNVV AS KNVV ON 1=1
+	        AND VBAK.MANDT = KNVV.MANDT
+	        AND VBAK.KUNNR = KNVV.KUNNR
+	        AND VBAK.VKORG = KNVV.VKORG
+	        AND VBAK.VTWEG = KNVV.VTWEG
+	        AND VBAK.SPART = KNVV.SPART	
+	   	LEFT JOIN CELONIS_BRP.T176T ON 1=1
+	   		AND VBAK.BSARK = T176T.BSARK
+	   		AND T176T.SPRAS = 'E'
+-- 20200304 Start of Sold From country.		
+		JOIN CELONIS_BRP.T005T AS T005T ON 1=1
+			AND T005T.MANDT = T001.MANDT
+			AND T005T.SPRAS = 'E'
+			AND T005T.LAND1 = T001.LAND1 
+-- 20200304 End of Sold From country.	              
+)
+;
+
+-----------------------------------------------------------------------------
+--BRP_02_07 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBAP
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBAP');
+
+--BRP_02_08 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBAP
+CREATE COLUMN TABLE CELONIS.O2C_BRP_VBAP AS (
+	SELECT DISTINCT 
+		VBAP."MANDT",
+		VBAP."VBELN",
+		VBAP."POSNR",
+		VBAP."ABGRU",
+		VBAP."ARKTX",
+		CAST(VBAP."ERDAT" AS DATE) AS "ERDAT",
+		VBAP."ERNAM",
+		VBAP."KTGRM",
+		VBAP."LGORT",
+		VBAP."MATKL",
+		VBAP."MATNR",
+		VBAP."MVGR4",		
+		VBAP."PSTYV",
+		VBAP."VSTEL",
+		VBAP."WERKS",
+		VBAP."MATWA",
+		VBAP."LFREL",
+		VBAP."FKREL",
+		VBAP."ZMENG",
+		VBAP."ZIEME",
+		VBAP."MEINS",
+		VBAP."SMENG",
+		VBAP."GRKOR",
+		VBAP."FAKSP",
+		VBAP."ATPKZ",
+		VBAP."NETWR",
+		VBAP."WAERK",
+		VBAP."VBELV",
+		VBAP."VGBEL",
+		VBAP."LPRIO",
+		VBAP."ROUTE",
+		VBAP."NETPR",
+		VBAP."KPEIN",
+		VBAP."KMEIN",
+		VBAP."PRSOK",
+		VBAP."BWTAR",
+		VBAP."STCUR",
+		CAST(VBAP."AEDAT" AS DATE) AS AEDAT,
+		VBAP."PRCTR",
+		VBAP."SUGRD",
+		VBAP."SOBKZ",
+		VBAP."PAOBJNR",
+		VBAP."PS_PSP_PNR",
+		VBAP."BEDAE",
+		VBAP."VGTYP",
+		VBAP."CMPRE_FLT",
+		VBAP."BERID",
+		VBAP."PCTRF",
+		VBAP."MSR_RET_REASON",
+		VBAP."ADPRI",
+		---------- ZZ and YY fields
+		NULL AS "ZLEADTIME",
+		NULL AS "ZZCATLG_LEDTIME1",
+		NULL AS "WZEIT1",
+		NULL AS "ZZ_PRIME",
+		NULL AS "ZZ_DPAS",
+		NULL AS "ZZRCREQDAT",
+		NULL AS "ZZPROMDAT",
+		NULL AS "ZZCATLGDAT",
+		NULL AS "YY8130STAT",
+		NULL AS "ZZCAGE",
+		NULL AS "YYACTYPE",
+		NULL AS "YYSERN",
+		NULL AS "YYACRG",
+		NULL AS "ZZ_SHPAHDAYS",
+		NULL AS "YYPFEP_REVIEW",
+		NULL AS "YYCRMCASE",
+		NULL AS "ZZTAT",
+		NULL AS "YYACCESS",
+		'0' AS "AUTH_LEVEL",
+		--20190328 Added fields SBG, GBE, PROD_FAMILY, MRP_CONTROLLER, MRP_CONTROLLER_TEXT, and PROD_HIERARCHY_V - J.Gerard
+		NULL AS "SBG",
+		CASE WHEN KNVV.ZZCUST_SEGMENT IN ('RE', 'EC') THEN 'RETAIL'
+				WHEN KNVV.ZZCUST_SEGMENT = 'IN' AND SUBSTRING(VBAP.PRODH,4,3) = '579' THEN 'RETAIL'
+			 		WHEN KNVV.ZZCUST_SEGMENT = 'IN' AND SUBSTRING(VBAP.PRODH,4,3) <> '579' THEN 'HIS'		
+				ELSE NULL
+			END AS "GBE",
+		SUBSTRING(VBAP.PRODH,4,3) AS "PROD_FAMILY",
+		MARC.DISPO AS "MRP_CONTROLLER",
+		T024D.DSNAM AS "MRP_CONTROLLER_TEXT",
+		VBAP.PRODH AS "PROD_HIERARCHY_V",
+--20190520 Added Price Change Reason Code and Description fields ZZOPRC & ZZOPRC_TEXT- SRIKUMAR
+-- start of 20200420 - incorporate Discount reason code where necessary.
+	CASE WHEN VBAP.ZZOPRC is NULL OR VBAP.ZZOPRC='' then
+		CASE WHEN VBAP.ZZMDISC is NULL OR VBAP.ZZMDISC =''	
+			THEN NULL
+		ELSE 'D'||VBAP.ZZMDISC
+		END -- ZZMDISC
+		ELSE CAST(VBAP.ZZOPRC AS NVARCHAR(4))
+--		CASE WHEN VBAP.ZZOPRC is NULL OR VBAP.ZZOPRC=''
+--			 THEN NULL
+--				 ELSE CAST(VBAP.ZZOPRC AS NVARCHAR(4))
+		END AS "PR_CHG_REASON_CODE",
+--		REASON.ZZOPRC_TEXT AS "PR_CHG_REASON_CODE_TXT",
+		CASE WHEN VBAP.ZZOPRC is NULL OR VBAP.ZZOPRC='' THEN
+			CASE WHEN VBAP.ZZMDISC is NULL OR VBAP.ZZMDISC =''	
+				THEN NULL
+			ELSE DISCO.ZZCHG_TEXT END
+		ELSE REASON.ZZOPRC_TEXT END AS "PR_CHG_REASON_CODE_TXT",
+-- End of 20200420		
+		VBAP."Z_ORIG_MAT",
+		VBAP."Z_XREF_TYPE",
+		NULL AS "ZZACTIVITY",
+		NULL AS "ZZBFWBS",
+		NULL AS "ZZNETWORK",
+	    CAST(VBAP.ABDAT AS DATE) AS ABDAT, 
+	    CAST(VBAP.STADAT AS DATE) AS STADAT, 
+	    CAST(VBAP.STDAT AS DATE) AS STDAT, 
+	    CAST(VBAP.ERZET AS TIME) AS ERZET,
+	    CAST(C.FKDAT AS DATE) AS FKDAT,
+	    C.ZTERM AS "ZTERM",
+		IFNULL(MAKT.MAKTX,'') AS MATNR_TEXT,
+		IFNULL(T023T.WGBEZ,'') AS MATKL_TEXT,
+		IFNULL(T001W.NAME1,'') AS WERKS_TEXT,
+		IFNULL(T001L.LGOBE,'') AS LGORT_TEXT,
+		IFNULL(TVSTT.VTEXT,'') AS VSTEL_TEXT,
+		IFNULL(TVKMT.VTEXT,'') AS KTGRM_TEXT,
+		IFNULL(TVAPT.VTEXT,'') AS PSTYV_TEXT,
+		IFNULL(TVAGT.BEZEI,'') AS ABGRU_TEXT,
+		C.NETWR_CONVERTED AS "NETWR_CONVERTED",
+		--20190328 Revised statement for HON Fiscal Period declaration - J.Gerard
+		--FIP.FISCAL_YEAR_STR || '-' || FIP.FISCAL_PERIOD_STR AS H_FISCAL_PERIOD,
+		CAST(FIP.FISCAL_YEAR_STR || '-' || FIP.FISCAL_PERIOD_STR AS NVARCHAR(7)) AS "H_FISCAL_PERIOD",
+	 	--20190328 Added CAST statement for HON Fiscal Week - J.Gerard
+ 		CAST(FIW.FISCAL_YEAR_WEEK_STR AS NVARCHAR(6)) AS "H_FISCAL_WEEK",
+ 		 --20190703 Added CASE statement to include Material Change Indicator - Srikumar
+
+-- Commented below CASE statement as executing the Stored Procedure results in error.  
+-- As a work around, included and update statement that will follow this INSERT statement.
+
+/*		 CASE WHEN EXISTS
+				(SELECT OBJECTID FROM "CELONIS_BRP"."CDPOS" WHERE FNAME = 'MATNR' AND OBJECTCLAS = 'VERKBELEG'
+				AND TABNAME = 'VBAP'
+				AND TABKEY = VBAP.MANDT || VBAP.VBELN || VBAP.POSNR
+				)
+			THEN 'X'
+			ELSE ''
+		END AS MATNR_CHG_IND  */
+		--NULL AS "MATNR_CHG_IND",
+-- 20200304 Start of
+		CASE WHEN FNAME = 'MATNR'  AND CHANGENR IS NOT NULL
+	         THEN 'X'
+	        ELSE  ''
+		END AS MATNR_CHG_IND, 
+		VBPA."ADRDA",
+		VBPA."LAND1",
+		T005TS.LANDX AS "DEST_CTRY",
+		T001W.LAND1 AS "LANDW",
+		T005W.LANDX AS "SHIP_FROM_CTRY"
+-- 20200304 End of 
+	FROM 
+	    CELONIS._CEL_O2C_BRP_CASES AS C
+	    JOIN CELONIS_BRP.VBAP AS VBAP ON 1=1
+	        AND VBAP.MANDT = C.MANDT
+	        AND VBAP.VBELN = C.VBELN
+	        AND VBAP.POSNR = C.POSNR
+	        --20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+--	        AND VBAP.ERDAT >= '20171001'
+	        AND VBAP.ERDAT >= add_months(add_days(last_day(current_date), -30), -18)
+--		Start of 20200304	
+		JOIN CELONIS_BRP.VBPA AS VBPA ON 1=1
+		   	AND VBPA.MANDT = VBAP.MANDT
+		   	AND VBPA.VBELN = VBAP.VBELN
+		   	AND VBPA.PARVW = 'WE'
+		   	AND VBPA.POSNR = '000000'
+--		End of 20200304			
+		LEFT JOIN CELONIS_BRP.MAKT ON 1=1
+		    AND VBAP.MANDT = MAKT.MANDT
+			AND VBAP.MATNR = MAKT.MATNR
+			AND MAKT.SPRAS = 'E'
+		LEFT JOIN CELONIS_BRP.T001W ON 1=1
+			AND VBAP.MANDT = T001W.MANDT
+			AND VBAP.WERKS = T001W.WERKS
+		LEFT JOIN CELONIS_BRP.T001L ON 1=1
+			AND VBAP.MANDT = T001L.MANDT
+			AND VBAP.WERKS = T001L.WERKS
+			AND VBAP.LGORT = T001L.LGORT
+		LEFT JOIN CELONIS_BRP.TVSTT ON 1=1
+			AND VBAP.MANDT = TVSTT.MANDT
+			AND VBAP.VSTEL = TVSTT.VSTEL
+			AND TVSTT.SPRAS = 'E'
+		LEFT JOIN CELONIS_BRP.TVKMT ON 1=1
+			AND TVKMT.MANDT=VBAP.MANDT
+			AND TVKMT.SPRAS = 'E'
+			AND TVKMT.KTGRM=VBAP.KTGRM
+		LEFT JOIN CELONIS_BRP.TVAPT ON 1=1
+			AND VBAP.MANDT = TVAPT.MANDT
+			AND VBAP.PSTYV = TVAPT.PSTYV
+			AND TVAPT.SPRAS = 'E'
+		LEFT JOIN CELONIS_BRP.TVAGT ON 1=1
+		    AND VBAP.MANDT = TVAGT.MANDT
+			AND VBAP.ABGRU = TVAGT.ABGRU 
+			AND TVAGT.SPRAS = 'E'
+		LEFT JOIN CELONIS_BRP.T023T AS T023T on 1=1
+		    AND T023T.MANDT = VBAP.MANDT
+		    AND T023T.SPRAS = 'E'
+		    AND T023T.MATKL = VBAP.MATKL
+		LEFT JOIN "CELONIS"."TIME_FISCAL_PERIOD" AS FIP ON 1=1
+			AND VBAP.ERDAT >= FIP.FISCAL_PERIOD_START_DATE
+			AND VBAP.ERDAT <= FIP.FISCAL_PERIOD_END_DATE
+		--20190328 Added LEFT JOIN for Fiscal Week assignment - J.Gerard 	
+		LEFT JOIN "CELONIS"."TIME_FISCAL_WEEK" AS FIW ON 1=1 
+			AND VBAP.ERDAT >= FIW.FISCAL_WEEK_START_DATE 
+			AND VBAP.ERDAT <= FIW.FISCAL_WEEK_END_DATE
+        --20190328 Added LEFT JOIN for MARC and MRP Controller - J.Gerard
+        LEFT JOIN CELONIS.O2C_BRP_MARC AS MARC ON 1=1  
+            AND VBAP.MANDT = MARC.MANDT
+            AND VBAP.MATNR = MARC.MATNR_INT
+            AND VBAP.WERKS = MARC.WERKS
+        --20190328 Added LEFT JOIN for T024D and MRP Controller Name - J.Gerard
+        LEFT JOIN CELONIS_BRP.T024D AS T024D ON 1=1
+          	AND MARC.MANDT = T024D.MANDT
+          	AND MARC.WERKS = T024D.WERKS
+          	AND MARC.DISPO = T024D.DISPO
+        --20190328 Added JOIN for VBAK to enable KNVV for ZZCUST_SEGMENT - J.Gerard
+        JOIN CELONIS_BRP.VBAK AS VBAK ON 1=1
+         	AND VBAP.MANDT = VBAK.MANDT
+         	AND VBAP.VBELN = VBAK.VBELN
+         	AND VBAK.VBTYP = 'C'
+        --20190328 Added LEFT JOIN for KNVV to enable ZZCUST_SEGMENT - J.Gerard
+        LEFT JOIN CELONIS_BRP.KNVV AS KNVV ON 1=1
+	        AND VBAK.MANDT = KNVV.MANDT
+	        AND VBAK.KUNNR = KNVV.KUNNR
+	        AND VBAK.VKORG = KNVV.VKORG
+	        AND VBAK.VTWEG = KNVV.VTWEG
+	        AND VBAK.SPART = KNVV.SPART	 
+	    --20190520 Added JOIN for O2C_BRP_ZOCOPRC_TEMP - SRIKUMAR
+		LEFT JOIN CELONIS.O2C_BRP_ZOCOPRC_TEMP AS REASON ON 1=1
+			AND VBAP.MANDT = REASON.MANDT
+			AND VBAP.ZZOPRC = REASON.ZZOPRC
+-- Start of 20200304
+		/*INNER JOIN CELONIS_BRP.VBPA AS VBPA ON 1=1
+		   	AND VBPA.MANDT = VBAP.MANDT
+		   	AND VBPA.VBELN = VBAP.VBELN
+		   	AND VBPA.PARVW = 'WE'
+		   	AND VBPA.POSNR = '000000'*/
+		LEFT JOIN CELONIS_BRP.T005T AS T005TS ON 1=1
+			AND T005TS.MANDT = VBPA.MANDT
+			AND T005TS.SPRAS = 'E'
+			AND T005TS.LAND1 = VBPA.LAND1
+		LEFT JOIN CELONIS_BRP.T005T AS T005W ON 1=1 	
+			AND T005W.MANDT = T001W.MANDT
+			AND T005W.SPRAS = 'E'
+			AND T005W.LAND1 = T001W.LAND1
+		LEFT JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON
+			CDPOS.MANDANT = VBAP.MANDT AND
+			CDPOS.TABKEY = VBAP.MANDT || VBAP.VBELN || VBAP.POSNR
+			AND CDPOS.CHNGIND = 'U'
+			AND CDPOS.TABNAME = 'VBAP'
+			AND CDPOS.FNAME ='MATNR'
+--	Start of 20200420		
+		LEFT JOIN CELONIS_BRP.ZTSD_MAN_DISCT as DISCO on 1=1
+			AND DISCO.MANDT = VBAP.MANDT
+			AND DISCO.SPRAS = 'E'
+			AND DISCO.ZZMDISC = VBAP.ZZMDISC
+--  End of 20200420
+-- End of 20200304	
+)
+;
+  
+------------------------------------------------------------------------
+-- BRP_02_09 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBEP
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBEP');
+
+--BRP_02_10 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBEP
+CREATE COLUMN TABLE CELONIS.O2C_BRP_VBEP AS (
+	SELECT DISTINCT 
+		VBEP."MANDT",
+		VBEP."VBELN",
+		VBEP."POSNR",
+		VBEP."ETENR",
+		VBEP."BMENG",
+	    CAST(VBEP.EDATU AS DATE) AS EDATU, 
+		VBEP."LIFSP",
+		VBEP."ETTYP",
+		VBEP."LFREL",
+		VBEP."WMENG",
+		VBEP."VRKME",
+		VBEP."MEINS",
+		CAST(VBEP.BDDAT AS DATE) AS BDDAT,
+		VBEP."BDART",
+		VBEP."BANFN",
+		VBEP."BSART",
+		VBEP."BSTYP",
+		VBEP."ROMS1",
+		VBEP."BWART",
+		VBEP."BNFPO",
+		CAST(VBEP.MBUHR AS TIME) AS MBUHR, 
+		CAST(VBEP.TDUHR AS TIME) AS TDUHR, 
+	    CAST(VBEP.LDUHR AS TIME) AS LDUHR, 
+		CAST(VBEP.WAUHR AS TIME) AS WAUHR,
+		VBEP."SHM",
+		NULL AS "YYREQDATE",
+		NULL AS "YYDELAYCODE",
+		NULL AS "ZZIDSDATE",
+		NULL AS "ZZREQDATETYPE",
+		NULL AS "ZZEARLYSHIPCAL",
+	    CAST(VBEP.LDDAT AS DATE) AS LDDAT, 
+	    CAST(VBEP.LRGDT AS DATE) AS LRGDT, 
+	    CAST(VBEP.MBDAT AS DATE) AS MBDAT, 
+	    CAST(VBEP.RSDAT AS DATE) AS RSDAT, 
+	    CAST(VBEP.TDDAT AS DATE) AS TDDAT, 
+	    CAST(VBEP.WADAT AS DATE) AS WADAT, 
+	    CAST(VBEP.EZEIT AS TIME) AS EZEIT, 
+		IFNULL(TVLST.VTEXT,'') AS LIFSK_TEXT
+	FROM 
+	    CELONIS_BRP.VBEP AS VBEP
+	    INNER JOIN CELONIS._CEL_O2C_BRP_CASES AS C ON
+	        VBEP.MANDT = C.MANDT
+	        AND VBEP.VBELN = C.VBELN 
+	        AND VBEP.POSNR = C.POSNR
+	        --20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard 
+--	        AND VBEP.EDATU >= '20171001'
+	        AND VBEP.EDATU >= add_months(add_days(last_day(current_date), -30), -18)
+		LEFT JOIN CELONIS_BRP.TVLST ON 1=1
+			AND VBEP.MANDT = TVLST.MANDT 
+			AND VBEP.LIFSP = TVLST.LIFSP 
+			AND TVLST.SPRAS = 'E'
+)
+;
+
+----------------------------------------------------------------------
+--NOTE: COLUMN TABLE: CELONIS.TMP_O2C_BRP_VBFA found in _CEL_O2C_BRP Stored Procedure is not required
+-- due to minimal network latency.  Achieved same result by using CELONIS_BRP.VBFA to create O2C.BRP.VBFA
+-----------------------------------------------------------------------
+--BRP_02_13 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBFA
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBFA');
+
+--BRP_02_14 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBFA
+--20910328 Revised selection for O2C_BRP_VBFA to include both VBTYP_V = 'C' and VBTYP_N = 'C' with UNION of TMP_O2C_BRP_VBFA -J.Gerard
+CREATE COLUMN TABLE CELONIS.O2C_BRP_VBFA AS (
+	SELECT DISTINCT
+		VBFA_1."MANDT",
+		VBFA_1."VBELV",
+		VBFA_1."POSNV",
+		VBFA_1."VBTYP_V",
+		VBFA_1."VBELN",
+		VBFA_1."POSNN",
+		VBFA_1."VBTYP_N",
+		CAST(VBFA_1."ERDAT" AS DATE) AS "ERDAT",
+		CAST(VBFA_1."ERZET" AS TIME) AS "ERZET",
+		NULL AS "YYACCESS",
+		'0' AS "AUTH_LEVEL"
+	FROM CELONIS_BRP.VBFA AS VBFA_1
+	--20190328 Removed CASES table JOIN and replaced with TMP_O2C_VBAK_VBAP JOIN
+	/*	JOIN CELONIS._CEL_O2C_BRP_CASES AS CASES ON 1=1
+			AND VBFA.MANDT = CASES.MANDT
+	        AND VBFA.VBELV = CASES.VBELN
+	        AND VBFA.POSNV = CASES.POSNR
+	        --20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+	        AND VBFA.ERDAT >= '20171001'
+	*/
+	 INNER JOIN CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS ON 1=1
+	        AND V_ORDERS.MANDT = VBFA_1.MANDT
+	        AND V_ORDERS.VBELN = VBFA_1.VBELV
+	        AND V_ORDERS.POSNR = VBFA_1.POSNV
+	        AND V_ORDERS.VBTYP = VBFA_1.VBTYP_V
+	        AND V_ORDERS.VBTYP = 'C'
+			--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+--	        AND VBFA_1.ERDAT >= '20171001'
+	        AND VBFA_1.ERDAT >= add_months(add_days(last_day(current_date), -30), -18)
+	
+UNION   	        
+	        
+	SELECT
+		VBFA_2."MANDT",
+		VBFA_2."VBELV",
+		VBFA_2."POSNV",
+		VBFA_2."VBTYP_V",
+		VBFA_2."VBELN",
+		VBFA_2."POSNN",
+		VBFA_2."VBTYP_N",
+		CAST(VBFA_2."ERDAT" AS DATE) AS "ERDAT",
+		CAST(VBFA_2."ERZET" AS TIME) AS "ERZET",
+		NULL AS "YYACCESS", 
+		'0' AS "AUTH_LEVEL"
+	FROM CELONIS_BRP.VBFA AS VBFA_2
+	JOIN CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS ON 1=1
+		AND V_ORDERS.MANDT = VBFA_2.MANDT
+		AND V_ORDERS.VBELN = VBFA_2.VBELN
+		AND V_ORDERS.POSNR = VBFA_2.POSNN
+	    AND V_ORDERS.VBTYP = VBFA_2.VBTYP_N
+	    AND V_ORDERS.VBTYP = 'C'
+		--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+--	    AND VBFA_2.ERDAT >= '20171001'
+	    AND VBFA_2.ERDAT >= add_months(add_days(last_day(current_date), -30), -18)
+)
+;
+
+--20190328 Eliminated need for TMP_O2C_BRP_LIPS as replaced with O2C_BRP_LIPS derived from model-specific
+-- O2C_BRP_VBFA table containing records specific to TMP_O2C_BRP_VBAK_VBAP 
+----------------------------------------------------------------------
+/*
+--BRP_02_15 - DROP COLUMN TABLE: CELONIS.TMP_O2C_BRP_LIPS
+CALL CELONIS.DROP_IF_EXISTS('CELONIS', 'TMP_O2C_BRP_LIPS');
+
+--BRP_02_16 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_LIPS
+CREATE COLUMN TABLE CELONIS.TMP_O2C_BRP_LIPS AS(
+		SELECT DISTINCT
+			LIPS.MANDT
+			, LIPS.VBELN
+			, LIPS.POSNR
+			, LIPS.PSTYV
+			, LIPS.ERNAM
+			, LIPS.ERZET
+			, LIPS.ERDAT
+			, LIPS.VBTYV
+		FROM CELONIS_BRP.LIPS AS LIPS
+		--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+		WHERE LIPS.ERDAT >= '20171001'
+);
+*/
+
+-------------------------------------------------------------------------------	
+--BRP_02_15 - DROP COLUMN TABLE: CELONIS.O2C_BRP_LIPS
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_LIPS');
+
+--BRP_02_16 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_LIPS
+CREATE COLUMN TABLE CELONIS.O2C_BRP_LIPS AS (
+	SELECT DISTINCT 
+	   	LIPS."MANDT",
+		LIPS."VBELN",
+		LIPS."POSNR",
+	    CAST(LIPS.ERDAT AS DATE) AS ERDAT,
+	 	CAST(LIPS.ERZET AS TIME) AS ERZET,
+		LIPS."PSTYV",
+		LIPS."ERNAM",
+		LIPS."MATNR",
+		LIPS."MATWA",
+		LIPS."MATKL",
+		LIPS."WERKS",
+		LIPS."LGORT",
+		LIPS."CHARG",
+		LIPS."KDMAT",
+		LIPS."PRODH",
+		LIPS."LFIMG",
+		LIPS."MEINS",
+		LIPS."FAKSP",
+		LIPS."LGMNG",
+		LIPS."VBELV",
+		LIPS."POSNV",
+		LIPS."VBTYV",
+		LIPS."VGBEL",
+		LIPS."VGPOS",
+		LIPS."FKREL",
+		LIPS."LADGR",
+		LIPS."TRAGR",
+		LIPS."LGNUM",
+		LIPS."LGTYP",
+		LIPS."LGPLA",
+		LIPS."BWART",
+		LIPS."BWLVS",
+		LIPS."MTART",
+		LIPS."XCHAR",
+		LIPS."BWTAR",
+		LIPS."GRKOR",
+		LIPS."SOBKZ",
+		LIPS."AEDAT",
+		LIPS."BERID",
+		LIPS."KZPOD",
+		-- 20190710 R.Garner
+		CAST (LIKP.WADAT AS DATE) AS WADAT,
+		CAST (LIKP.WADAT_IST AS DATE)AS WADAT_IST,
+		DAYS_BETWEEN (CAST(LIKP.WADAT AS DATE), CAST(LIKP.WADAT_IST AS DATE)) AS SHIP_DIFF,	
+		DAYS_BETWEEN (CAST(LIKP.WADAT AS DATE), CAST(LIKP.LFDAT AS DATE)) AS ROUTE_DAYS,
+		CAST (LIKP.LFDAT AS DATE) AS CRD_EDATU,
+		CAST (VBAK.VDATU AS DATE) AS FIRST_EDATU,
+		-- End of 20190710		
+		NULL AS "YY8130STAT"
+	FROM
+	    CELONIS_BRP.LIPS AS LIPS
+		--20190328 Modified code to use O2C_BRP_VBFA created earlier in sequence - J.Gerard
+	    --20190328 Replaced CELONIS_BRP.VBFA with O2C_BRP_VBFA with model-specific records - J.Gerard 
+	    --INNER JOIN CELONIS_BRP.VBFA AS VBFA ON 1=1
+	    INNER JOIN CELONIS.O2C_BRP_VBFA AS VBFA ON 1=1
+	      AND LIPS.MANDT = VBFA.MANDT
+	      AND LIPS.VBELN = VBFA.VBELN
+	      AND LIPS.POSNR = VBFA.POSNN
+	      --20190328 Added VBTYP_N = 'T' to include Return Deliveries - J.Gerard
+	      AND VBFA.VBTYP_N IN ('J', 'T')
+		  --20190328 Removed LIPS.ERDAT date restriction since not necessary as O2C_BRP_VBFA already date restricted - J.Gerard	
+	      --20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+	      --AND LIPS.ERDAT >= '20171001'
+	    --20190328 Modified code to use O2C_BRP_VBFA created previously with model-specific records - J.Gerard
+	    /*INNER JOIN CELONIS._CEL_O2C_BRP_CASES AS CASES ON 1=1
+	        AND VBFA.MANDT = CASES.MANDT
+	        AND VBFA.VBELV = CASES.VBELN
+	        AND VBFA.POSNV = CASES.POSNR
+	        AND VBFA.VBTYP_V = 'C'
+	
+		
+				-- 20190710 add joins for the requirement dates and early shipments.
+		JOIN CELONIS_BRP.VBEP AS VCRD ON   -- Requirement schedule line
+			VCRD.MANDT = LIPS.MANDT AND
+			VCRD.VBELN = LIPS.VGBEL AND
+			VCRD.POSNR = LIPS.VGPOS AND
+			VCRD.WMENG > 0
+
+	*/
+		JOIN CELONIS_BRP.LIKP AS LIKP ON   -- Delivery Header
+			LIPS.MANDT = LIKP.MANDT AND
+			LIPS.VBELN = LIKP.VBELN
+	/*		
+		LEFT OUTER JOIN CELONIS_BRP.ZTSD_VBEPF AS CRD ON  -- First Req Schedule line data
+			CRD.MANDT = LIPS.MANDT AND
+			CRD.VBELN = LIPS.VGBEL AND
+			CRD.POSNR = LIPS.VGPOS AND
+			CRD.TYPE = 'F' AND
+			CRD.WMENG > 0
+	*/		
+		LEFT OUTER JOIN CELONIS.O2C_BRP_VBAK AS VBAK ON  -- First Req Schedule line date
+			VBAK.MANDT = LIPS.MANDT AND
+			VBAK.VBELN = LIPS.VGBEL 
+)
+;
+
+---------------------------------------------------------------------------------
+--BRP_02_17 - DROP COLUMN TABLE: CELONIS.O2C_BRP_KNA1
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_KNA1');
+
+--BRP_02_18 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_KNA1
+CREATE COLUMN TABLE CELONIS.O2C_BRP_KNA1 AS (
+	SELECT DISTINCT 
+		KNA1."MANDT",
+		KNA1."KUNNR",
+		KNA1."AUFSD",
+		KNA1."KTOKD",
+-- 20190703 Included Customer Account Group Description*** Srikumar	
+		T077X."TXT30",
+		KNA1."KUKLA",
+		KNA1."LAND1",
+		T005T.LANDX AS SP_COUNTRY,
+		KNA1."NAME1",
+		KNA1."NAME2",
+		KNA1."ORT01",
+		KNA1."PSTLZ",
+		KNA1."REGIO",
+		NULL AS "YYATLID",
+		NULL AS "YYCAGECODE",
+		NULL AS "YYCBOM",
+		NULL AS "YYCMOA",
+		NULL AS "YYDODAAC",
+		NULL AS "ZZDUNS",
+		NULL AS "ZZFORENT",
+		NULL AS "ZZGLOBALDUNS",
+	    CAST(KNA1.ERDAT AS DATE) AS ERDAT, 
+	    CAST(KNA1.UPDAT AS DATE) AS UPDAT, 
+	    CAST(KNA1.UPTIM AS TIME) AS UPTIM 
+	FROM 
+	    CELONIS_BRP.KNA1 AS KNA1
+	    INNER JOIN CELONIS_BRP.VBAK AS VBAK ON
+	        VBAK.MANDT = KNA1.MANDT
+	        AND VBAK.KUNNR = KNA1.KUNNR
+	    INNER JOIN CELONIS._CEL_O2C_BRP_CASES AS C ON
+	        VBAK.MANDT = C.MANDT
+	        AND VBAK.VBELN = C.VBELN
+	    INNER JOIN CELONIS_BRP.T077X AS T077X ON
+	   		T077X.KTOKD = KNA1.KTOKD 
+	   		AND T077X.SPRAS = 'E'
+	   	JOIN CELONIS_BRP.T005T AS T005T ON 1=1  --20200109
+			AND T005T.MANDT = KNA1.MANDT
+			AND T005T.SPRAS = 'E'
+			AND T005T.LAND1 = KNA1.LAND1   
+)
+;
+
+-----------------------------------------------------------------
+--BRP_02_19 - DROP COLUMN TABLE: CELONIS.O2C_BRP_KNB1
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_KNB1');
+
+--BRP_02_20 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_KNB1
+CREATE COLUMN TABLE CELONIS.O2C_BRP_KNB1 AS (
+	SELECT DISTINCT 
+		KNB1."MANDT",
+		KNB1."KUNNR",
+		KNB1."BUKRS",
+		KNB1."PERNR",
+		CAST(KNB1.ERDAT AS DATE) AS ERDAT, 
+		KNB1."ERNAM",
+		KNB1."SPERR",
+		KNB1."LOEVM",
+		KNB1."ZUAWA",
+		KNB1."BUSAB",
+		KNB1."ZAHLS",
+		KNB1."ZTERM",
+		KNB1."WAKON",
+		KNB1."VZSKZ",
+		CAST(KNB1.ZINDT AS DATE) AS ZINDT,
+		KNB1."ZINRT",
+		KNB1."EIKTO",
+		KNB1."ZSABE",
+		KNB1."KVERM",
+		KNB1."FDGRV",
+		KNB1."VRBKZ",
+		KNB1."VLIBB",
+		KNB1."VRSZL",
+		KNB1."VRSPR",
+		KNB1."VRSNR",
+		CAST(KNB1.VERDT AS DATE) AS VERDT, 
+		KNB1."PERKZ",
+		KNB1."XDEZV",
+		KNB1."XAUSZ",
+		KNB1."WEBTR",
+		KNB1."REMIT",
+		CAST(KNB1.DATLZ AS DATE) AS DATLZ, 
+		KNB1."XZVER",
+		KNB1."TOGRU",
+		KNB1."KULTG",
+		KNB1."HBKID",
+		KNB1."XPORE",
+		KNB1."BLNKZ",
+		KNB1."ALTKN",
+		KNB1."ZGRUP",
+		KNB1."URLID",
+		KNB1."MGRUP",
+		KNB1."LOCKB",
+		KNB1."UZAWE",
+		CAST(KNB1.UPDAT AS DATE) AS UPDAT, 
+		CAST(KNB1.UPTIM AS TIME) AS UPTIM
+	FROM 
+	    CELONIS_BRP.KNB1 AS KNB1
+	    INNER JOIN CELONIS_BRP.VBAK AS VBAK ON
+	        VBAK.MANDT = KNB1.MANDT
+	        AND VBAK.KUNNR = KNB1.KUNNR
+	        AND VBAK.BUKRS_VF = KNB1.BUKRS
+	    INNER JOIN CELONIS._CEL_O2C_BRP_CASES AS C ON
+	        VBAK.MANDT = C.MANDT
+	        AND VBAK.VBELN = C.VBELN
+)
+;
+
+---------------------------------------------------------------
+--BRP_02_21 - DROP COLUMN TABLE: CELONIS.O2C_BRP_KNKK
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_KNKK');
+
+--BRP_02_22 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_KNKK
+CREATE COLUMN TABLE CELONIS.O2C_BRP_KNKK AS (
+	SELECT DISTINCT 
+		KNKK."MANDT",
+		KNKK."KUNNR",
+		KNKK."KKBER",
+		KNKK."KLIMK",
+		KNKK."KNKLI",
+		KNKK."SAUFT",
+		KNKK."SKFOR",
+		KNKK."SSOBL",
+		CAST(KNKK.UEDAT AS DATE) AS UEDAT,
+		KNKK."XCHNG",
+		KNKK."ERNAM",
+		CAST(KNKK.ERDAT AS DATE) AS ERDAT, 
+		KNKK."CTLPC",
+		CAST(KNKK.DTREV AS DATE) AS DTREV, 
+		KNKK."CRBLB",
+		KNKK."SBGRP",
+		CAST(KNKK.NXTRV AS DATE) AS NXTRV, 
+		KNKK."KRAUS",
+		KNKK."PAYDB",
+		KNKK."DBRAT",
+		CAST(KNKK.REVDB AS DATE) AS REVDB, 
+		CAST(KNKK.AEDAT AS DATE) AS AEDAT, 
+		CAST(KNKK.AETXT AS DATE) AS AETXT, 
+		KNKK."GRUPP",
+		KNKK."AENAM",
+		CAST(KNKK.SBDAT AS DATE) AS SBDAT, 
+		KNKK."KDGRP",
+		CAST(KNKK.CASHD AS DATE) AS CASHD,
+		KNKK."CASHA",
+		KNKK."CASHC",
+		KNKK."DBPAY",
+		KNKK."DBRTG",
+		KNKK."DBEKR",
+		KNKK."DBWAE",
+		CAST(KNKK.DBMON AS DATE) AS DBMON, 
+		KNKK."ABSBT"
+	FROM 
+	    CELONIS_BRP.KNKK AS KNKK
+	    INNER JOIN CELONIS_BRP.VBAK AS VBAK ON
+	        VBAK.MANDT = KNKK.MANDT
+	        AND VBAK.KKBER = KNKK.KKBER
+	        AND VBAK.KUNNR = KNKK.KUNNR
+	    INNER JOIN CELONIS._CEL_O2C_BRP_CASES AS C ON
+	        VBAK.MANDT = C.MANDT
+	        AND VBAK.VBELN = C.VBELN
+)
+;
+
+-----------------------------------------------------------
+--BRP_02_23 - DROP COLUMN TABLE: CELONIS.O2C_BRP_KNVV
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_KNVV');
+	
+--20190328 Added table KNVV for addtional Customer Master Sales Data 
+--BRP_02_24 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_KNVV
+CREATE COLUMN TABLE CELONIS.O2C_BRP_KNVV AS (
+	SELECT DISTINCT 
+		KNVV."MANDT",
+		KNVV."KUNNR",
+		KNVV."VKORG",
+		KNVV."VTWEG",
+		KNVV."SPART",
+		KNVV."ZZCUST_SEGMENT"
+	FROM 
+	    CELONIS_BRP.KNVV AS KNVV
+	    INNER JOIN CELONIS_BRP.VBAK AS VBAK ON
+	        VBAK.MANDT = KNVV.MANDT
+	        AND VBAK.KUNNR = KNVV.KUNNR
+	        AND VBAK.VKORG = KNVV.VKORG
+	        AND VBAK.VTWEG = KNVV.VTWEG
+	        AND VBAK.SPART = KNVV.SPART
+	    INNER JOIN CELONIS._CEL_O2C_BRP_CASES AS C ON
+	        VBAK.MANDT = C.MANDT
+	        AND VBAK.VBELN = C.VBELN
+)
+;	        
+
+---------------------------------------------------------------
+--BRP_02_25 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBRP
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBRP');
+	
+--BRP_02_26 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBRP
+CREATE COLUMN TABLE CELONIS.O2C_BRP_VBRP AS (
+	SELECT DISTINCT 
+		VBRP."MANDT",
+		VBRP."VBELN",
+		VBRP."POSNR",
+		VBRP."ERNAM",
+		VBRP."UEPOS",
+		VBRP."FKIMG",
+		VBRP."VRKME",
+		VBRP."MEINS",
+		VBRP."SMENG",
+		VBRP."NETWR",
+		VBRP."VBELV",
+		VBRP."POSNV",
+		VBRP."VGBEL",
+		VBRP."VGPOS",
+		VBRP."VGTYP",
+		VBRP."AUBEL",
+		VBRP."AUPOS",
+		VBRP."MATNR",
+		VBRP."PSTYV",
+		VBRP."VSTEL",
+		VBRP."ATPKZ",
+		VBRP."WERKS",
+		VBRP."BWTAR",
+		VBRP."ALAND",
+		T005TA.LANDX AS SHIPPING_CTRY,
+		VBRP."LLAND_AUFT"
+	FROM CELONIS_BRP.VBRP AS VBRP
+		--20190328 Revised JOIN from CELONIS_BRP.VBFA to CELONIS.O2C_BRP_VBFA which contains model-specific records - J.Gerard
+	  	--JOIN CELONIS_BRP.VBFA AS VBFA ON 1=1
+		JOIN CELONIS.O2C_BRP_VBFA AS VBFA ON 1=1
+			AND VBRP.MANDT = VBFA.MANDT
+			AND VBRP.VBELN = VBFA.VBELN
+			AND VBRP.POSNR = VBFA.POSNN
+			--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+--			AND VBRP.ERDAT >= '20171001'
+			AND VBRP.ERDAT >= add_months(add_days(last_day(current_date), -30), -18)
+			--AND VBFA.VBTYP_N = 'M'
+	    INNER JOIN CELONIS._CEL_O2C_BRP_CASES AS CASES ON 1=1
+			AND VBFA.MANDT = CASES.MANDT
+	        AND VBFA.VBELV = CASES.VBELN
+	        AND VBFA.POSNV = CASES.POSNR
+	        AND VBFA.VBTYP_V = 'C'
+	    JOIN CELONIS_BRP.T005T AS T005TA ON 1=1
+			AND T005TA.MANDT = VBRP.MANDT
+			AND T005TA.SPRAS = 'E'
+			AND T005TA.LAND1 = VBRP.ALAND 
+)
+;
+
+-------------------------------------------------------------------
+-- BRP_02_27 - DROP COLUMN TABLE: CELONIS.O2C_BRP_NAST
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_NAST');
+
+--BRP_02_28 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_NAST
+CREATE COLUMN TABLE CELONIS.O2C_BRP_NAST AS (
+	SELECT DISTINCT 
+	   NAST."MANDT",
+	    NAST."KAPPL",
+	    NAST."OBJKY",
+	    NAST."KSCHL",
+	    NAST."SPRAS",
+	    NAST."PARNR",
+	    NAST."PARVW",
+	    CAST(NAST."ERDAT" AS DATE) AS ERDAT,
+	    CAST(NAST."ERUHR" AS TIME) AS ERUHR,
+	    NAST."NACHA",
+	    CAST(NAST."DATVR" AS DATE) AS DATVR,
+	    CAST(NAST."UHRVR" AS TIME) AS UHRVR,
+	    NAST."USNAM",
+	    IFNULL(DD07T_EKKO_NACHA.DDTEXT,'') AS NACHA_TEXT
+	FROM 
+	    CELONIS_BRP.NAST AS NAST
+	    INNER JOIN CELONIS._CEL_O2C_BRP_CASES AS C ON
+	        NAST.MANDT = C.MANDT
+	        AND NAST.OBJKY = C.VBELN
+	        --20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+--	        AND NAST.DATVR >= '20171001'
+	        AND NAST.DATVR >= add_months(add_days(last_day(current_date), -30), -18)
+	    LEFT JOIN CELONIS_BRP.DD07T AS DD07T_EKKO_NACHA ON 1=1
+		    AND DD07T_EKKO_NACHA.DOMVALUE_L = NAST.NACHA 
+		    AND DD07T_EKKO_NACHA.DOMNAME = 'NA_NACHA'
+		    AND DD07T_EKKO_NACHA.DDLANGUAGE = 'E'
+
+)
+;
+
+------------------------------------------------------------------
+--20190328 Added SQL for table O2C_BRP_LIKP to be used to check for valid Delivery and create Delivery ACTIVITY_EN for _CEL_O2C_ACTIVITIES - J.Gerard
+--BRP_02_29 - DROP COLUMN TABLE: CELONIS.O2C_BRP_LIKP
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_LIKP');
+
+--20190328 Added O2C_BRP_LIKP to be used to check for valid Delivery and create Delivery ACTIVITY_EN.  Used only in Data Model/Not in Application (i.e. NO Global UNION view) - J.Gerard	
+--BRP_02_30 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_LIKP
+CREATE COLUMN TABLE CELONIS.O2C_BRP_LIKP AS (
+	SELECT DISTINCT 
+	    LIKP."MANDT",
+	    LIKP."VBELN",
+	    LIKP."VBTYP",
+	    LIKP."LFART",  -- 20200304
+		LIKP."LFDAT",
+	    LIKP."WADAT",
+	    LIKP."WADAT_IST"
+	FROM CELONIS_BRP.LIKP AS LIKP
+	INNER JOIN CELONIS.O2C_BRP_LIPS AS LIPS ON 1=1
+		AND LIPS.MANDT = LIKP.MANDT
+		AND LIPS.VBELN = LIKP.VBELN
+--		AND LIKP.ERDAT >= '20171001'
+		AND LIKP.ERDAT >= add_months(add_days(last_day(current_date), -30), -18)	
+)
+;
+
+-------------------------------------------------------------------
+--20190328 Added SQL for table O2C_BRP_VBRK to be used to check for valid Billing and create Billing ACTIVITY_EN.  Used only in Data Model/Not in Application (i.e. NO Global UNION view) - J.Gerard
+--BRP_02_31 - DROP COLUMN TABLE: CELONIS.O2C_BRP_VBRK
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'O2C_BRP_VBRK');
+	
+--20190328 Added O2C_BRP_VBRK to be used to check for valid Billing and create Billing ACTIVITY_EN.  Used only in Data Model/Not in Application (i.e. NO Global UNION view) - J.Gerard
+--BRP_02_32 - CREATE COLUMN TABLE: CELONIS.O2C_BRP_VBRK
+CREATE COLUMN TABLE CELONIS.O2C_BRP_VBRK AS (
+	SELECT DISTINCT 
+	    VBRK."MANDT",
+	    VBRK."VBELN",
+	    VBRK."FKART",
+	    VBRK."VBTYP",
+	    VBRK."ERNAM",
+	    VBRK."ERZET",
+	    VBRK."ERDAT",
+	    VBRK."FKDAT",
+	    VBRK."LAND1",
+	    T005T1.LANDX AS DEST_COUNTRY,
+	    VBRK."LANDTX",
+	    T005TX.LANDX AS TX_COUNTRY
+	FROM CELONIS_BRP.VBRK AS VBRK
+	INNER JOIN CELONIS.O2C_BRP_VBRP AS VBRP ON 1=1
+		AND VBRP.MANDT = VBRK.MANDT
+		AND VBRP.VBELN = VBRK.VBELN
+--		AND VBRK.ERDAT >= '20171001'
+		AND VBRK.ERDAT >= add_months(add_days(last_day(current_date), -30), -18)
+	JOIN CELONIS_BRP.T005T AS T005T1 ON 1=1
+		AND T005T1.MANDT = VBRK.MANDT
+		AND T005T1.SPRAS = 'E'
+		AND T005T1.LAND1 = VBRK.LAND1
+	JOIN CELONIS_BRP.T005T AS T005TX ON 1=1
+		AND T005TX.MANDT = VBRK.MANDT
+		AND T005TX.SPRAS = 'E'
+		AND T005TX.LAND1 = VBRK.LANDTX
+)
+;
+-------------------------------------------------------------------------
+--BRP_03_01 - Drop Column Table CELONIS._CEL_O2C_BRP_ACTIVITIES
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', '_CEL_O2C_BRP_ACTIVITIES');
+
+--BRP_03_02 - Create Column Table CELONIS_CEL_O2C_BRP_ACTIVITIE
+CREATE COLUMN TABLE CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY" NVARCHAR(50)
+		,"ACTIVITY_EN" NVARCHAR(200)
+		,"EVENTTIME" TIMESTAMP
+		,"_SORTING" INT
+		,"USER_NAME" NVARCHAR(100)
+		,"USER_TYPE" NVARCHAR(20)
+	    ,"CHANGED_TABLE" NVARCHAR(20)
+	    ,"CHANGED_TABLE_TEXT_EN" NVARCHAR(200)
+	    ,"CHANGED_FIELD" NVARCHAR(20)
+	    ,"CHANGED_FIELD_TEXT_EN" NVARCHAR(200)
+	    ,"CHANGED_FROM" NVARCHAR (50)
+	    ,"CHANGED_TO" NVARCHAR(50)
+	    ,"CHANGED_FROM_FLOAT" FLOAT
+	    ,"CHANGED_TO_FLOAT" FLOAT
+	    --20190328 Added CHANGED_FROM/TO_TIMESTAMP fields to ACTIVITIES table - J.Gerard
+		,"CHANGED_FROM_TIMESTAMP" TIMESTAMP
+		,"CHANGED_TO_TIMESTAMP" TIMESTAMP
+		,"CHANGE_NUMBER" NVARCHAR(50)
+		,"TRANSACTION_CODE" NVARCHAR(20)
+	    ,"MANDT" nvarchar(3)
+	    ,"VBELN" nvarchar(10)
+	    ,"POSNR" nvarchar(6)
+	    ,"ETENR" nvarchar(4) -- used for schedule line blocks
+	    ,"PREV_BLOCK_TIME" TIMESTAMP -- previous block activity
+	    ,"NEXT_BLOCK_TIME" TIMESTAMP -- next block activity
+		--20190328 Added REF_DOC_TYPE and REF_DOC_NO for additional information - J.Gerard
+		,"REF_DOC_TYPE" NVARCHAR(30)
+		,"REF_DOC_NO" NVARCHAR(60)
+)
+;
+
+--------------------------------------------------------------------
+--BRP_03_03 - Drop Column Table CELONIS.TMP_O2C_BRP_CDHDR_CDPOS
+CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'TMP_O2C_BRP_CDHDR_CDPOS');
+
+--BRP_03_04 - Create Column Table CELONIS.TMP_O2C_BRP_CDHDR_CDPOS
+CREATE COLUMN TABLE CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS (
+		SELECT
+			POS.MANDANT
+			, POS.OBJECTCLAS
+			, POS.OBJECTID
+			, POS.CHANGENR
+			, POS.TABNAME
+			, POS.TABKEY
+			, POS.FNAME
+			, POS.CHNGIND
+			, POS.TEXT_CASE
+			, POS.UNIT_OLD
+			, POS.UNIT_NEW
+			, POS.CUKY_OLD
+			, POS.CUKY_NEW
+			, TRIM(POS.VALUE_NEW) AS VALUE_NEW
+			, TRIM(POS.VALUE_OLD) AS VALUE_OLD
+			, HDR.UDATE
+			, HDR.UTIME
+			, HDR.USERNAME
+			, HDR.TCODE
+			, COALESCE(USR.USTYP, '') AS USTYP
+		FROM CELONIS_BRP.CDHDR AS HDR
+		JOIN CELONIS_BRP.CDPOS AS POS ON 1=1
+			AND HDR.MANDANT = POS.MANDANT
+			AND HDR.CHANGENR = POS.CHANGENR
+			AND HDR.OBJECTID = POS.OBJECTID
+			AND HDR.OBJECTCLAS = POS.OBJECTCLAS
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND POS.TABNAME IN ('VBUK', 'VBUP', 'VBAK', 'VBAP', 'VBEP', 'VBRK', 'VBPA','VBKD')
+			AND POS.FNAME IN (
+				-- VBUK
+				'CMGST'
+				,'LVSTK'
+				,'KOSTK'
+				,'KOQUK'
+				-- VBUP
+				, 'UVALL'
+				--VBAK
+				, 'FAKSK'
+				, 'LIFSK'
+				--VBAP
+				, 'ABGRU'
+				, 'NETPR'
+				, 'SPART'
+			 	, 'LFMNG'
+			 	, 'MATNR'
+			 	, 'WERKS'
+			 	, 'ROUTE'
+			 	-- VBEP
+				, 'KEY'		--20200420
+				, 'EDATU'  	--20200420
+			 	, 'FAKSP'
+			 	, 'LIFSP'
+			 	-- Included Change Quatity (WMENG) field
+				, 'WMENG'
+			 	--VBRK
+			 	, 'RFBSK'
+			 	-- Included VBPA table and KUNNR Ship-to field
+				-- VBPA
+				, 'KUNNR'
+				, 'ZTERM'
+			 ) 
+			AND COALESCE(HDR.UDATE, '') <> ''
+			AND HDR.UDATE <> '00000000'
+			--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+--			AND HDR.UDATE >= '20171001'
+			AND HDR.UDATE >= add_months(add_days(last_day(current_date), -30), -18)
+		LEFT JOIN CELONIS_BRP.USR02 AS USR ON 1=1
+			AND USR.BNAME = HDR.USERNAME
+			AND USR.MANDT = HDR.MANDANT
+		--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+
+)
+;
+
+------------------------------------------------------------------------
+--BRP_05_01 - Insert Activity:  'Create Quotation'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"MANDT",
+		"VBELN",
+		"POSNR",
+		--REF_DOC_TYPE" and "REF_DOC_NO" for Quotation details -J.Gerard
+		"REF_DOC_TYPE",
+		"REF_DOC_NO")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS "_CASE_KEY"
+		, 'Create Quotation' AS "ACTIVITY_EN"
+		, TO_DATE(V_QUOTES.ERDAT, 'YYYY-MM-DD') || ' ' ||  TO_TIME(V_QUOTES.ERZET, 'HH24:MI:SS') AS "EVENTTIME"
+		, 10 AS "_SORTING"
+		, V_QUOTES.ERNAM AS "USER_NAME"
+		, USR02.USTYP AS "USER_TYPE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+		--20190328 Added logic for REF_DOC_TYPE and REF_DOC_NO - J.Gerard
+		,'Quotation' AS "REF_DOC_TYPE"
+		,V_QUOTES.VBELN ||'_'|| V_QUOTES.POSNR AS "REF_DOC_NO"
+	FROM
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS_BRP.VBFA AS VBFA ON
+			V_ORDERS.MANDT = VBFA.MANDT AND
+			V_ORDERS.VBELN = VBFA.VBELN AND
+		    V_ORDERS.POSNR = VBFA.POSNN 
+		JOIN CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_QUOTES ON
+			V_QUOTES.MANDT = VBFA.MANDT AND
+			V_QUOTES.VBELN = VBFA.VBELV AND
+			V_QUOTES.POSNR = VBFA.POSNV
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			V_QUOTES.MANDT = USR02.MANDT AND
+			V_QUOTES.ERNAM = USR02.BNAME
+	WHERE 
+	    V_ORDERS.VBTYP = 'C'
+	    AND V_QUOTES.VBTYP = 'B'
+;
+
+---------------------------------------------------------------------
+--BRP_05_02 - Insert Activity: 'Create Sales Order Item'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS "_CASE_KEY"
+		, 'Create Sales Order Item' AS "ACTIVITY_EN"
+		, TO_DATE(V_ORDERS.ERDAT, 'YYYY-MM-DD') || ' ' ||  TO_TIME(V_ORDERS.ERZET, 'HH24:MI:SS') AS "EVENTTIME"
+		, 20 AS "_SORTING"
+		, V_ORDERS.ERNAM AS "USER_NAME"
+		, USR02.USTYP AS "USER_TYPE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			V_ORDERS.MANDT = USR02.MANDT AND
+			V_ORDERS.ERNAM = USR02.BNAME
+	WHERE 
+	    V_ORDERS.VBTYP = 'C'
+;
+
+-----------------------------------	-------------------------------------
+--BRP_05_03 - Insert 'Activity: Approve/Deny/Partially Approve Credit Checks' (Header)'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+	 	 ,CASE 
+			WHEN CDPOS.VALUE_NEW IN ('A','D') THEN 'Approve Credit Check (Header)'
+			WHEN CDPOS.VALUE_NEW = 'B' THEN 'Deny Credit Check (Header)'   
+			WHEN CDPOS.VALUE_NEW = 'C' THEN 'Partially approve Credit Check (Header)'    
+	 	 END AS  "ACTIVITY_EN"
+		,CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS "EVENTTIME"
+		,30 +
+		CASE 
+			WHEN CDPOS.VALUE_NEW IN ('A','D') THEN 1
+			WHEN CDPOS.VALUE_NEW = 'B' THEN 2 
+			WHEN CDPOS.VALUE_NEW = 'C' THEN 3
+	 	 END AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,CDPOS.VALUE_OLD AS "CHANGED_FROM"
+		,CDPOS.VALUE_NEW AS "CHANGED_TO"
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON
+			--20190328 Moved WHERE statement to JOIN statement statement - J.Gerard
+			V_ORDERS.VBTYP = 'C' AND
+			CDPOS.MANDANT = V_ORDERS.MANDT AND
+			CDPOS.TABKEY = V_ORDERS.TABKEY_VBAK
+			AND CDPOS.CHNGIND = 'U' 
+			AND CDPOS.TABNAME ='VBUK'
+			AND CDPOS.FNAME = 'CMGST'
+			AND COALESCE(CDPOS.VALUE_NEW, '') <> ''
+			--20190328 Replaced CAST(DATE||TIME) with 'TMP_O2C_*_VBAK_VBAP'.'TS_VBAP_ERDAT' - J.Gerard
+			--AND CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP)>= CAST(CAST(V_ORDERS.ERDAT AS DATE) || ' ' || CAST(V_ORDERS.ERZET AS TIME) AS TIMESTAMP)
+			AND CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP) >= TS_VBAP_ERDAT
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			USR02.MANDT = CDPOS.MANDANT AND
+			USR02.BNAME = CDPOS.USERNAME
+--20190328 Moved WHERE statement to JOIN statement statement - J.Gerard
+/*	WHERE 1=1 
+		AND CDPOS.CHNGIND = 'U' 
+		AND CDPOS.TABNAME ='VBUK'
+		AND (CDPOS.FNAME = 'CMGST'
+		AND COALESCE(CDPOS.VALUE_NEW, '') <> '')  
+		AND V_ORDERS.VBTYP = 'C'
+		--20180828 Added date check for Header activity >= Case ID creation date - JG
+		AND	CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP)
+			>= CAST(CAST(V_ORDERS.ERDAT AS DATE) || ' ' || CAST(V_ORDERS.ERZET AS TIME) AS TIMESTAMP)
+*/
+;
+
+--------------------------------------------------------------------
+--INSERT Activity: Delivery Block (Header) - Set automatically upon Sales Order Item Create
+--BRP_05_04 - Insert Activity: 'Set Delivery Block (Header_Auto)' 
+	INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGE_NUMBER",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+	 	,CASE
+	 		-- Only if there's either a change in cdpos or there is currently a delivery block
+			--20190328 Removed the COALESCE for V_ORDERS.LIFSK which is current value at time of load -J.Gerard
+	 		--WHEN COALESCE(CDPOS.VALUE_OLD, V_ORDERS.LIFSK, '') <> ''
+			WHEN COALESCE(CDPOS.VALUE_OLD, '') <> ''
+	 			THEN 'Set Delivery Block (Header_Auto)' 
+	 		-- If not, there's no ACTIVITY_EN entry (This will be cleaned up later)
+	 		ELSE NULL
+	 	END AS  "ACTIVITY_EN"
+		,CASE 
+			-- Only if there's either a change in cdpos or there is currently a delivery block
+			--20190328 Removed the COALESCE for V_ORDERS.LIFSK which is current value at time of load -J.Gerard
+	 		--WHEN COALESCE(CDPOS.VALUE_OLD, V_ORDERS.LIFSK, '') <> ''
+			WHEN COALESCE(CDPOS.VALUE_OLD, '') <> ''
+				THEN TO_DATE(V_ORDERS.ERDAT, 'YYYY-MM-DD') || ' ' ||  TO_TIME(V_ORDERS.ERZET, 'HH24:MI:SS')
+			-- If not, there's no EVENTTIME entry (This will be cleaned up later)
+			ELSE NULL
+		END AS "EVENTTIME" 
+		,34 AS "_SORTING"
+		,V_ORDERS.ERNAM AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,'' AS "CHANGED_FROM"
+		--20190328 Removed TVLST_CURRENT.VTEXT since JOIN for current value V_ORDERS.LIFSK no longer valid -J.Gerard
+		--,COALESCE(TVLST.VTEXT, TVLST_CURRENT.VTEXT, CDPOS.VALUE_OLD) AS "CHANGED_TO"
+		,COALESCE(TVLST.VTEXT, CDPOS.VALUE_OLD, '') AS "CHANGED_TO"
+		--Use Order Number as Change Number since the initial setting doesn't have one
+		,V_ORDERS.MANDT || V_ORDERS.VBELN AS "CHANGE_NUMBER"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM "CELONIS"."TMP_O2C_BRP_VBAK_VBAP" AS V_ORDERS
+	LEFT JOIN (
+		-- Get the Delivery Block Changes and number based on the time of appearance
+		SELECT 
+			CHANGES.*
+			, ROW_NUMBER() OVER (PARTITION BY TABKEY ORDER BY UDATE asc, UTIME asc) AS MYROW
+		FROM "CELONIS"."TMP_O2C_BRP_CDHDR_CDPOS" AS CHANGES
+		WHERE 1=1
+			AND TABNAME = 'VBAK' 
+			AND FNAME = 'LIFSK'
+		)
+	AS CDPOS ON 1=1
+		AND CDPOS.TABKEY = V_ORDERS.MANDT || V_ORDERS.VBELN
+		AND CDPOS.MYROW = 1 -- The first change
+		AND COALESCE(CDPOS.VALUE_OLD, '') <> '' -- The first change comes from something not emtpy
+		AND V_ORDERS.VBTYP = 'C'
+	LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			V_ORDERS.MANDT = USR02.MANDT AND
+			V_ORDERS.ERNAM = USR02.BNAME
+	LEFT JOIN CELONIS_BRP.TVLST AS TVLST ON 1=1
+			AND TVLST.MANDT = CDPOS.MANDANT
+			AND TVLST.LIFSP = CDPOS.VALUE_OLD
+			AND TVLST.SPRAS = 'E'
+	--20190328 Removed LEFT JOIN for V_ORDERS.LIKSK which is no longer needed per above removal - J.Gerard
+/*	LEFT JOIN CELONIS_BRP.TVLST AS TVLST_CURRENT ON 1=1
+			AND TVLST_CURRENT.MANDT = V_ORDERS.MANDT
+			AND TVLST_CURRENT.LIFSP = V_ORDERS.LIFSK
+			AND TVLST_CURRENT.SPRAS = 'E'
+			--20180828 Added date check for Header activity >= Case ID creation date - JG
+			--AND	CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP)
+			-->= CAST(CAST(V_ORDERS.ERDAT AS DATE) || ' ' || CAST(V_ORDERS.ERZET AS TIME) AS TIMESTAMP)
+*/
+;
+
+--------------------------------------------------------------------------
+--INSERT Activity: Delivery Blocks (Header)
+--BRP_05_05 - Insert Activity: 'Set/Change/Remove Delivery Block (Header)'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+	 	 ,CASE  
+	 	    WHEN COALESCE(CDPOS.VALUE_OLD, '') = '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Set Delivery Block (Header)' 
+	 	    WHEN COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Change Delivery Block (Header)' 
+	 	    WHEN COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') = '' THEN 'Remove Delivery Block (Header)' 
+	 	 END AS  "ACTIVITY_EN"
+		,CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS "EVENTTIME"
+		,30 +
+		CASE 
+			WHEN COALESCE(CDPOS.VALUE_OLD, '') = '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 5
+			WHEN COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 6
+			WHEN COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') = '' THEN 7
+	 	 END AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,COALESCE(TVLST_OLD.VTEXT, CDPOS.VALUE_OLD) AS "CHANGED_FROM"
+		,COALESCE(TVLST_NEW.VTEXT, CDPOS.VALUE_NEW) AS "CHANGED_TO"
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON
+			--20190328 Moved WHERE statement to JOIN statement statement - J.Gerard
+			V_ORDERS.VBTYP = 'C' AND 
+			CDPOS.MANDANT = V_ORDERS.MANDT AND
+			CDPOS.TABKEY = V_ORDERS.TABKEY_VBAK
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND CDPOS.CHNGIND = 'U' 
+			AND CDPOS.TABNAME = 'VBAK'
+			AND CDPOS.FNAME ='LIFSK'
+			--20190328 Replaced CAST(DATE||TIME) with 'TMP_O2C_*_VBAK_VBAP'.'TS_VBAP_ERDAT' - J.Gerard
+			--AND CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP)>= CAST(CAST(V_ORDERS.ERDAT AS DATE) || ' ' || CAST(V_ORDERS.ERZET AS TIME) AS TIMESTAMP)
+			AND CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP) >= TS_VBAP_ERDAT	
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			USR02.MANDT = CDPOS.MANDANT AND
+			USR02.BNAME = CDPOS.USERNAME
+		LEFT JOIN CELONIS_BRP.TVLST AS TVLST_NEW ON 1=1
+			AND TVLST_NEW.MANDT = CDPOS.MANDANT
+			AND TVLST_NEW.LIFSP = CDPOS.VALUE_NEW
+			AND TVLST_NEW.SPRAS = 'E'
+		LEFT JOIN CELONIS_BRP.TVLST AS TVLST_OLD ON 1=1
+			AND TVLST_OLD.MANDT = CDPOS.MANDANT
+			AND TVLST_OLD.LIFSP = CDPOS.VALUE_OLD
+			AND TVLST_OLD.SPRAS = 'E'
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+/*	WHERE 1=1
+		AND CDPOS.CHNGIND = 'U' 
+		AND CDPOS.TABNAME = 'VBAK'
+		AND V_ORDERS.VBTYP = 'C' 
+		AND CDPOS.FNAME ='LIFSK'
+		--20180828 Added date check for Header activity >= Case ID creation date - JG
+		AND	CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP)
+			>= CAST(CAST(V_ORDERS.ERDAT AS DATE) || ' ' || CAST(V_ORDERS.ERZET AS TIME) AS TIMESTAMP)
+*/
+;
+
+--------------------------------------------------------------------------
+--INSERT Activity: Billing Blocks Set/Change/Remove
+--BRP_05_06 - Insert Activity: 'Set/Change/Remove Billing Blocks'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+	 	,CASE 
+	 		WHEN COALESCE(CDPOS.VALUE_OLD, '') = '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Set Billing Block (Header)'
+	 		WHEN COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Change Billing Block (Header)'
+	 		WHEN COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') = '' THEN 'Remove Billing Block (Header)'
+	 	END AS  "ACTIVITY_EN"
+		,CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS "EVENTTIME"
+		,38 AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+--		,COALESCE(TVFST_OLD.VTEXT, CDPOS.VALUE_OLD) AS "CHANGED_FROM"   -- 20191112 Correction
+--		,COALESCE(TVFST_NEW.VTEXT, CDPOS.VALUE_NEW) AS "CHANGED_TO"		-- 20191112 Correction
+		,CDPOS.VALUE_OLD AS "CHANGED_FROM"  -- 20191112 Correction to be consistent with all Blocks
+		,CDPOS.VALUE_NEW AS "CHANGED_TO"	-- 20191112 Correction		
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON 1=1
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND V_ORDERS.VBTYP = 'C'
+			AND CDPOS.MANDANT = V_ORDERS.MANDT
+			AND CDPOS.TABKEY = V_ORDERS.TABKEY_VBAK
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND CDPOS.TABNAME = 'VBAK'
+			AND CDPOS.FNAME = 'FAKSK'
+			AND CDPOS.CHNGIND = 'U'
+			AND COALESCE(CDPOS.UDATE, '') <> ''
+			--20190328 Replaced CAST(DATE||TIME) with 'TMP_O2C_*_VBAK_VBAP'.'TS_VBAP_ERDAT' - J.Gerard
+			--AND	CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP)>= CAST(CAST(V_ORDERS.ERDAT AS DATE) || ' ' || CAST(V_ORDERS.ERZET AS TIME) AS TIMESTAMP)
+			AND CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP) >= TS_VBAP_ERDAT	
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON 1=1 
+			AND USR02.MANDT = CDPOS.MANDANT
+			AND USR02.BNAME = CDPOS.USERNAME
+		LEFT JOIN CELONIS_BRP.TVFST AS TVFST_NEW ON 1=1
+			AND TVFST_NEW.MANDT = CDPOS.MANDANT
+			AND TVFST_NEW.FAKSP = CDPOS.VALUE_NEW
+			AND TVFST_NEW.SPRAS = 'E'
+		LEFT JOIN CELONIS_BRP.TVFST AS TVFST_OLD ON 1=1
+			AND TVFST_OLD.MANDT = CDPOS.MANDANT
+			AND TVFST_OLD.FAKSP = CDPOS.VALUE_OLD
+			AND TVFST_OLD.SPRAS = 'E'
+	--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+/*	WHERE 1=1
+		AND CDPOS.CHNGIND = 'U'
+		AND COALESCE(CDPOS.UDATE, '') <> ''
+		AND CDPOS.TABNAME = 'VBAK'
+		AND V_ORDERS.VBTYP = 'C'
+		AND CDPOS.FNAME = 'FAKSK'
+		--20180828 Added date check for Header activity >= Case ID creation date - JG
+		AND	CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP)
+		>= CAST(CAST(V_ORDERS.ERDAT AS DATE) || ' ' || CAST(V_ORDERS.ERZET AS TIME) AS TIMESTAMP)
+*/
+;
+
+-----------------------------------------------------------------------
+--INSERT Activity: Changes (Sales Order Item)
+--BRP_05_07 - Insert Activity: Multiple Changes to Sales Order Item
+	INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGED_FROM_FLOAT",
+		"CHANGED_TO_FLOAT",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+		,CASE 
+			WHEN CDPOS.FNAME = 'ABGRU' AND COALESCE(CDPOS.VALUE_OLD, '') = '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Set Reason for Rejection'
+			WHEN CDPOS.FNAME = 'ABGRU' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Change Reason for Rejection' 
+			WHEN CDPOS.FNAME = 'ABGRU' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') = '' THEN 'Cancel Reason for Rejection' 
+			WHEN CDPOS.FNAME = 'FAKSP' AND COALESCE(CDPOS.VALUE_OLD, '') = '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Set Billing Block'
+			WHEN CDPOS.FNAME = 'FAKSP' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Change Billing Block' 
+			WHEN CDPOS.FNAME = 'FAKSP' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') = '' THEN 'Remove Billing Block'  
+	 	    WHEN CDPOS.FNAME = 'NETPR' THEN 'Change Price'
+	 	    WHEN CDPOS.FNAME = 'SPART' THEN 'Change Division'
+			WHEN CDPOS.FNAME = 'LFMNG' AND CDPOS.VALUE_NEW = '0' THEN 'Book Delivery Shortage'
+			WHEN CDPOS.FNAME = 'LFMNG' THEN 'Change Delivery Amount'
+			WHEN CDPOS.FNAME = 'MATNR' THEN 'Change Material'
+			WHEN CDPOS.FNAME = 'WERKS' THEN 'Change Plant'
+			WHEN CDPOS.FNAME = 'ROUTE' THEN 'Change Route'
+			-- 20190828 Included condition to include 'Change Quantity', Change Ship-to (header) and Change Ship-to (Schedule line) activity condition
+			WHEN CDPOS.FNAME = 'WMENG' THEN 'Change Quantity'
+			-- 20191112 add chnage Payment terms to item
+			WHEN CDPOS.FNAME = 'ZTERM' AND SUBSTRING(CDPOS.TABKEY, 14,6) <> '000000' THEN 'Change Payment Term (Item)'
+			-- end of 20191112
+			WHEN CDPOS.FNAME = 'KUNNR' AND RIGHT(CDPOS.TABKEY,2) = 'WE' AND SUBSTRING(CDPOS.TABKEY, 14,6) <> '000000' THEN 'Change Ship To (Schd. line)'
+	 	END AS  "ACTIVITY_EN"
+		,TO_DATE(CDPOS.UDATE, 'YYYY-MM-DD') || ' ' ||  TO_TIME(IFNULL(CDPOS.UTIME, '23:59:59'), 'HH24:MI:SS') AS "EVENTTIME"
+		,30 +
+		CASE 
+			WHEN CDPOS.FNAME = 'ABGRU' AND COALESCE(CDPOS.VALUE_OLD, '') = '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 1
+			WHEN CDPOS.FNAME = 'ABGRU' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 2
+			WHEN CDPOS.FNAME = 'ABGRU' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') = '' THEN 3
+	 	    WHEN CDPOS.FNAME = 'FAKSP' THEN 9
+	 	    WHEN CDPOS.FNAME = 'NETPR' THEN 14
+	 	    WHEN CDPOS.FNAME = 'SPART' THEN 15
+			WHEN CDPOS.FNAME = 'LFMNG' AND CDPOS.VALUE_NEW = '0' THEN 6
+			WHEN CDPOS.FNAME = 'LFMNG' THEN 17
+			WHEN CDPOS.FNAME = 'MATNR' THEN 18
+			WHEN CDPOS.FNAME = 'WERKS' THEN 19
+			WHEN CDPOS.FNAME = 'ROUTE' THEN 20
+			-- 20190827 Added Sorting ID for Change Quantity, Ship-to (header & schedule line)	
+			WHEN CDPOS.FNAME = 'WMENG' THEN 22
+			WHEN CDPOS.FNAME = 'ZTERM' AND SUBSTRING(CDPOS.TABKEY, 14,6) <> '000000' THEN 26
+			WHEN CDPOS.FNAME = 'KUNNR' AND RIGHT(CDPOS.TABKEY,2) = 'WE' AND SUBSTRING(CDPOS.TABKEY, 14,6) <> '000000' THEN 24
+	 	END AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,LTRIM(CDPOS.VALUE_OLD) AS "CHANGED_FROM"
+		,LTRIM(CDPOS.VALUE_NEW) AS "CHANGED_TO"
+		,CASE
+	        WHEN CDPOS.FNAME = 'NETPR' THEN CASE WHEN RIGHT(value_old,1) = '-' THEN -1*cast(REPLACE(cdpos.value_old,'-','')as float)
+	                                        ELSE cast(cdpos.value_old as float) END   
+	        -- 20191206  Start Calulate Impact of Payment Terms Change 
+		    WHEN CDPOS.FNAME = 'ZTERM' AND SUBSTRING(CDPOS.TABKEY, 14,6) <> '000000' THEN 
+	        	CASE
+	        	WHEN (COALESCE(T052_OLD.ZTAG1,'') <> '000' AND   COALESCE(T052_OLD.ZTAG1,'') <> '') AND COALESCE(T052_OLD.ZSMN1,'') = '00' AND COALESCE(T052_OLD.ZMONA,'') = '00'   
+     				THEN  T052_OLD.ZTAG1
+				WHEN (COALESCE(T052_OLD.ZTAG1,'') = '000' AND  COALESCE(T052_OLD.ZTAG1,'') = '') AND COALESCE(T052_OLD.ZSMN1,'') <> '00' AND COALESCE(T052_OLD.ZMONA,'') = '00'   
+					THEN  DAYS_BETWEEN (ADD_DAYS(LAST_DAY(ADD_MONTHS( V_ORDERS.FKDAT,(T052_OLD.ZSMN1-1))),T052_OLD.ZSTG1 ),V_ORDERS.FKDAT)
+				WHEN (COALESCE(T052_OLD.ZTAG1,'') = '000' AND   COALESCE(T052_OLD.ZTAG1,'') = '') AND COALESCE(T052_OLD.ZSMN1,'') = '00' AND COALESCE(T052_OLD.ZMONA,'') <> '00'   
+					THEN  DAYS_BETWEEN (ADD_DAYS(LAST_DAY(ADD_MONTHS( V_ORDERS.FKDAT,(T052_OLD.ZMONA-1))),T052_OLD.ZFAEL ),V_ORDERS.FKDAT)
+			 	END   
+			-- 20191206  End Calulate Impact of Payment Terms Change  
+	        ELSE NULL 
+		 END AS "CHANGED_FROM_FLOAT"
+		,CASE
+	        WHEN CDPOS.FNAME = 'NETPR' THEN CASE WHEN RIGHT(value_new,1) = '-' THEN -1*cast(REPLACE(cdpos.value_new,'-','')as float)
+	                                        ELSE cast(cdpos.value_new as float) END   
+	        -- 20191206  Start Calulate Impact of Payment Terms Change
+ 	        WHEN CDPOS.FNAME = 'ZTERM' AND SUBSTRING(CDPOS.TABKEY, 14,6) <> '000000' THEN
+ 	        CASE
+	        	WHEN (COALESCE(T052_NEW.ZTAG1,'') <> '000' AND   COALESCE(T052_NEW.ZTAG1,'') <> '') AND COALESCE(T052_NEW.ZSMN1,'') = '00' AND COALESCE(T052_NEW.ZMONA,'') = '00'   
+     				THEN  T052_NEW.ZTAG1
+				WHEN (COALESCE(T052_NEW.ZTAG1,'') = '000' AND   COALESCE(T052_NEW.ZTAG1,'') = '') AND COALESCE(T052_NEW.ZSMN1,'') <> '00' AND COALESCE(T052_NEW.ZMONA,'') = '00'   
+					THEN  DAYS_BETWEEN (ADD_DAYS(LAST_DAY(ADD_MONTHS( V_ORDERS.FKDAT,(T052_NEW.ZSMN1-1))),T052_NEW.ZSTG1 ),V_ORDERS.FKDAT)
+				WHEN (COALESCE(T052_NEW.ZTAG1,'') = '000' AND   COALESCE(T052_NEW.ZTAG1,'') = '') AND COALESCE(T052_NEW.ZSMN1,'') = '00' AND COALESCE(T052_NEW.ZMONA,'') <> '00'   
+					THEN  DAYS_BETWEEN (ADD_DAYS(LAST_DAY(ADD_MONTHS( V_ORDERS.FKDAT,(T052_NEW.ZMONA-1))),T052_OLD.ZFAEL ),V_ORDERS.FKDAT)
+			END	
+	        -- 20191206  End Calulate Impact of Payment Terms Change       
+	        ELSE NULL 
+	     END AS "CHANGED_TO_FLOAT"
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			V_ORDERS.VBTYP='C' AND
+			CDPOS.MANDANT = V_ORDERS.MANDT AND
+--			CDPOS.TABKEY = V_ORDERS._CASE_KEY
+			SUBSTRING(CDPOS.TABKEY,1,19) = V_ORDERS._CASE_KEY
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND CDPOS.TABNAME IN ('VBAP', 'VBEP', 'VBPA','VBFA','VBKD') -- 20190828 Schedule Line and Partnrr added
+			AND CDPOS.CHNGIND = 'U'
+			AND CDPOS.FNAME IN ('ABGRU', 'NETPR', 'SPART', 'LFMNG', 'MATNR', 'WERKS', 'ROUTE', 'FAKSP','WMENG','KUNNR','ZTERM')
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			USR02.MANDT = CDPOS.MANDANT AND
+			USR02.BNAME = CDPOS.USERNAME
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+/*	WHERE 
+		CDPOS.CHNGIND = 'U'
+		AND CDPOS.FNAME IN ('ABGRU', 'NETPR', 'SPART', 'LFMNG', 'MATNR', 'WERKS', 'ROUTE', 'FAKSP')
+		AND CDPOS.TABNAME = 'VBAP'
+		AND V_ORDERS.VBTYP='C'
+*/
+		LEFT JOIN CELONIS_BRP.T052 AS T052_OLD ON 1=1
+			AND	CDPOS.VALUE_OLD = T052_OLD.ZTERM
+			AND CDPOS.MANDANT = T052_OLD.MANDT
+		LEFT JOIN CELONIS_BRP.T052 AS T052_NEW ON 1=1
+			AND	CDPOS.VALUE_NEW = T052_NEW.ZTERM
+			AND CDPOS.MANDANT = T052_NEW.MANDT
+;
+
+----------------------------------------------------------------------
+--INSERT Activity: Delivery Block Schedule Line Item Auto
+--BRP_05_08 - Insert Activity: 'Set Delivery Block (Sched_Line_Auto)' - Set automatically upon Sales Order Item Create
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGE_NUMBER",
+		"MANDT",
+		"VBELN",
+		"POSNR",
+		"ETENR")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+	 	,CASE
+	 		-- Only if there's either a change in cdpos or there#s currently a delivery block
+			--20190328 Removed the COALESCE for V_ORDERS.LIFSK which is current value at time of load -J.Gerard
+	 		--WHEN COALESCE(CDPOS.VALUE_OLD, V_ORDERS.LIFSK, '') <> ''
+	 		WHEN COALESCE(CDPOS.VALUE_OLD, '') <> ''
+	 			THEN 'Set Delivery Block (Sched_Line_Auto)' 
+	 		-- If not, there's no eventtime (This will be cleaned up later)
+	 		ELSE NULL
+	 	END AS  "ACTIVITY_EN"
+		,CASE 
+			-- Only if there's either a change in cdpos or there#s currently a delivery block
+			--20190328 Removed the COALESCE for V_ORDERS.LIFSK which is current value at time of load -J.Gerard
+	 		--WHEN COALESCE(CDPOS.VALUE_OLD, V_ORDERS.LIFSK, '') <> ''
+	 		WHEN COALESCE(CDPOS.VALUE_OLD, '') <> ''
+				THEN TO_DATE(V_ORDERS.ERDAT, 'YYYY-MM-DD') || ' ' ||  TO_TIME(V_ORDERS.ERZET, 'HH24:MI:SS')
+			-- If not, there's no eventtime (This will be cleaned up later)
+			ELSE NULL
+		END AS "EVENTTIME" 
+		,34 AS "_SORTING"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,'' AS "CHANGED_FROM"
+		--20190328 Removed TVLST_CURRENT.VTEXT since JOIN for current value V_ORDERS.LIFSK no longer valid -J.Gerard
+		--,COALESCE(TVLST.VTEXT, TVLST_CURRENT.VTEXT, CDPOS.VALUE_OLD) AS "CHANGED_TO"
+		,COALESCE(TVLST.VTEXT, CDPOS.VALUE_OLD, '') AS "CHANGED_TO"
+		-- Use Order Number as Change Number since the initial setting doesn't have one
+		,V_ORDERS.MANDT || V_ORDERS.VBELN || V_ORDERS.POSNR || VBEP.ETENR AS "CHANGE_NUMBER"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+		,VBEP.ETENR AS "ETENR"
+	FROM "CELONIS"."TMP_O2C_BRP_VBAK_VBAP" AS V_ORDERS
+	JOIN CELONIS_BRP.VBEP AS VBEP ON 1=1
+			AND V_ORDERS.MANDT = VBEP.MANDT
+			AND V_ORDERS.VBELN = VBEP.VBELN
+			AND V_ORDERS.POSNR = VBEP.POSNR
+	LEFT JOIN (
+		-- Get the Delivery Block Changes and number based on the time of appearance
+		SELECT 
+			CHANGES.*
+			, ROW_NUMBER() OVER (PARTITION BY TABKEY ORDER BY UDATE asc, UTIME asc) AS MYROW
+		FROM "CELONIS"."TMP_O2C_BRP_CDHDR_CDPOS" AS CHANGES
+		WHERE 1=1
+			AND TABNAME = 'VBEP' 
+			AND FNAME = 'LIFSP'
+		)
+	AS CDPOS ON 1=1
+		AND CDPOS.TABKEY = V_ORDERS.MANDT || V_ORDERS.VBELN || V_ORDERS.POSNR || VBEP.ETENR
+		AND CDPOS.MYROW = 1 -- The first change
+		AND COALESCE(CDPOS.VALUE_OLD, '') <> '' -- The first change comes from something not emtpy
+		AND V_ORDERS.VBTYP = 'C'
+	LEFT JOIN CELONIS_BRP.TVLST AS TVLST ON 1=1
+			AND TVLST.MANDT = CDPOS.MANDANT
+			AND TVLST.LIFSP = CDPOS.VALUE_OLD
+			AND TVLST.SPRAS = 'E'
+	--20190328 JOIN for V_ORDERS.LIFSK no longer required since field removed from above statement - J.Gerard
+/*	LEFT JOIN CELONIS_BRP.TVLST AS TVLST_CURRENT ON 1=1
+			AND TVLST_CURRENT.MANDT = V_ORDERS.MANDT
+			AND TVLST_CURRENT.LIFSP = V_ORDERS.LIFSK
+			AND TVLST_CURRENT.SPRAS = 'E'
+*/			
+;
+
+---------------------------------------------------------
+--INSERT Activity: Delivery Blocks Schedule Line Item
+--BRP_05_09 - Insert Activity: 'Set/Change/Remove Delivery Block (Sched_Line)'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR",
+		"ETENR")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+	 	 ,CASE 
+	 	    WHEN CDPOS.FNAME = 'LIFSP' AND COALESCE(CDPOS.VALUE_OLD, '') = '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Set Delivery Block (Sched_Line)'
+	 	    WHEN CDPOS.FNAME = 'LIFSP' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 'Change Delivery Block (Sched_Line)'
+	 	    WHEN CDPOS.FNAME = 'LIFSP' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') = '' THEN 'Remove Delivery Block (Sched_Line)'
+	 	 END AS  "ACTIVITY_EN"
+		,CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS "EVENTTIME"
+		,30 +
+		CASE 
+	 	    WHEN CDPOS.FNAME = 'LIFSP' AND COALESCE(CDPOS.VALUE_OLD, '') = '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 5
+	 	    WHEN CDPOS.FNAME = 'LIFSP' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') <> '' THEN 6
+	 	    WHEN CDPOS.FNAME = 'LIFSP' AND COALESCE(CDPOS.VALUE_OLD, '') <> '' AND COALESCE(CDPOS.VALUE_NEW, '') = '' THEN 7
+	 	 END AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,COALESCE(TVLST_OLD.VTEXT, CDPOS.VALUE_OLD) AS "CHANGED_FROM"
+		,COALESCE(TVLST_NEW.VTEXT, CDPOS.VALUE_NEW) AS "CHANGED_TO"
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+		,VBEP.ETENR AS "ETENR"
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS_BRP.VBEP AS VBEP ON 1=1
+			AND V_ORDERS.MANDT = VBEP.MANDT
+			AND V_ORDERS.VBELN = VBEP.VBELN
+			AND V_ORDERS.POSNR = VBEP.POSNR
+			AND VBEP.ETENR = '0001'  -- 20191001- record activity only for one schedule line (since a single change to one schedule line is reflected in all for an itme when using VA02)
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND V_ORDERS.VBTYP = 'C'
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON
+			CDPOS.MANDANT = VBEP.MANDT AND
+			CDPOS.TABKEY = VBEP.MANDT || VBEP.VBELN || VBEP.POSNR || VBEP.ETENR
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND CDPOS.CHNGIND = 'U'
+			AND CDPOS.TABNAME = 'VBEP'
+			AND CDPOS.FNAME ='LIFSP'
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			USR02.MANDT = CDPOS.MANDANT AND
+			USR02.BNAME = CDPOS.USERNAME
+		LEFT JOIN CELONIS_BRP.TVLST AS TVLST_NEW ON 1=1
+			AND TVLST_NEW.MANDT = CDPOS.MANDANT
+			AND TVLST_NEW.LIFSP = CDPOS.VALUE_NEW
+			AND TVLST_NEW.SPRAS = 'E'
+		LEFT JOIN CELONIS_BRP.TVLST AS TVLST_OLD ON 1=1
+			AND TVLST_OLD.MANDT = CDPOS.MANDANT
+			AND TVLST_OLD.LIFSP = CDPOS.VALUE_OLD
+			AND TVLST_OLD.SPRAS = 'E'
+	--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+/*	WHERE 1=1 
+		AND CDPOS.CHNGIND = 'U'
+		AND CDPOS.TABNAME = 'VBEP'
+		AND V_ORDERS.VBTYP = 'C'
+		AND CDPOS.FNAME ='LIFSP'
+*/
+;
+	
+---------------------------------------------------------------------
+--INSERT Activity: Create Delivery Documents
+--BRP_05_10 - Insert Activity: 'Create Delivery Documents'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"MANDT",
+		"VBELN",
+		"POSNR",
+		--20190328 Added REF_DOC_TYPE" and "REF_DOC_NO" for Delivery details -J.Gerard
+		"REF_DOC_TYPE",
+		"REF_DOC_NO")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS "_CASE_KEY"
+		,CASE
+			WHEN COALESCE(DD07T_EN.DDTEXT, '') <> ''AND LIKP.LFART IN ('BV','LF','LR','ZSO') 
+			THEN 'Create ' || DD07T_EN.DDTEXT
+			ELSE 'Create Other Delivery Document'
+		END AS "ACTIVITY_EN"
+		, CAST(LIPS.ERDAT AS DATE) || ' ' || CAST(LIPS.ERZET AS TIME) AS "EVENTTIME"
+		, 70 AS "_SORTING"
+		, LIPS.ERNAM AS "USER_NAME"
+		, USR02.USTYP AS "USER_TYPE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+		--20190328 Added logic for REF_DOC_TYPE and REF_DOC_NO - J.Gerard
+		,'Delivery' AS "REF_DOC_TYPE"
+		,LIPS.VBELN ||'_'|| LIPS.POSNR AS "REF_DOC_NO"
+	FROM
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		--20190328 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records - J.Gerard
+	    --JOIN CELONIS_BRP.VBFA AS VBFA ON 1=1
+		JOIN CELONIS.O2C_BRP_VBFA AS VBFA ON 1=1
+			AND V_ORDERS.MANDT = VBFA.MANDT
+			AND V_ORDERS.VBELN = VBFA.VBELV
+			AND V_ORDERS.POSNR = VBFA.POSNV
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND V_ORDERS.VBTYP = 'C'
+	  --20190328 Modified JOIN to use O2C_BRP_LIPS containing model specific LIPS records - J.Gerard
+	  --JOIN CELONIS.TMP_O2C_BRP_LIPS AS LIPS ON 1=1		
+		JOIN CELONIS.O2C_BRP_LIPS AS LIPS ON 1=1
+			AND VBFA.MANDT = LIPS.MANDT
+			AND VBFA.VBELN = LIPS.VBELN
+			AND VBFA.POSNN = LIPS.POSNR
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND COALESCE(LIPS.ERDAT, '') <> ''
+		--20190328 Modified JOIN to use O2C_BRP_LIKP containing model specific LIKP records - J.Gerard
+	    --JOIN CELONIS_BRP.LIKP AS LIKP ON 1=1	
+		JOIN CELONIS.O2C_BRP_LIKP AS LIKP ON 1=1
+			AND LIPS.MANDT = LIKP.MANDT
+			AND LIPS.VBELN = LIKP.VBELN
+		LEFT JOIN CELONIS_BRP.DD07T AS DD07T_EN ON 1=1
+			AND DD07T_EN.DOMNAME = 'VBTYP'
+			AND DD07T_EN.DDLANGUAGE = 'E'
+			AND DD07T_EN.DOMVALUE_L = LIKP.VBTYP
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON 1=1
+			AND LIPS.MANDT = USR02.MANDT
+			AND LIPS.ERNAM = USR02.BNAME
+		--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+/*	WHERE 
+		COALESCE(LIPS.ERDAT, '') <> ''
+		AND V_ORDERS.VBTYP = 'C'
+*/
+;
+
+-----------------------------------------------------------------------
+--INSERT Activity: Record/Cancel Goods Issue
+--BRP_05_11 - Insert Activity: 'Record/Cancel Goods Issue'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+	    "_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"MANDT",
+		"VBELN",
+		"POSNR",
+		--20190328 Added REF_DOC_TYPE" and "REF_DOC_NO" for Goods Issue details 
+		"REF_DOC_TYPE",
+		"REF_DOC_NO")
+	SELECT 
+	 	V_ORDERS._CASE_KEY AS "_CASE_KEY"
+	 	,CASE
+	 	 --  WHEN VBFA_GI.VBTYP_N = 'R' THEN 'Record Goods Issue'
+			WHEN VBFA_GI.VBTYP_N = 'R' AND LIPS.SHIP_DIFF < 0 THEN 'Early Shipment PGI'  --RWG 20190710
+			WHEN VBFA_GI.VBTYP_N = 'R' AND LIPS.SHIP_DIFF >= 0 THEN 'Record Goods Issue' --RWG 20190710
+	 	    WHEN VBFA_GI.VBTYP_N = 'h' THEN 'Cancel Goods Issue'
+	 	END AS "ACTIVITY_EN"
+		,CAST(VBFA_GI.ERDAT AS DATE) || ' ' || CAST(VBFA_GI.ERZET AS TIME) AS "EVENTTIME"
+		,80 +
+		CASE
+	 	    WHEN VBFA_GI.VBTYP_N = 'R' THEN 1
+	 	    WHEN VBFA_GI.VBTYP_N = 'h' THEN 2
+	 	END AS "_SORTING"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+		--20190328 Added logic for REF_DOC_TYPE and REF_DOC_NO - J.Gerard
+		,'GI Material Doc' AS "REF_DOC_TYPE"
+		,VBFA_GI.VBELV ||'_'|| VBFA_GI.POSNV AS "REF_DOC_NO"
+	FROM
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS 
+		--20190328 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records - J.Gerard
+	    --JOIN CELONIS_BRP.VBFA AS VBFA_DEL ON
+		JOIN CELONIS.O2C_BRP_VBFA AS VBFA_DEL ON
+			V_ORDERS.MANDT = VBFA_DEL.MANDT AND
+			V_ORDERS.VBELN = VBFA_DEL.VBELV AND
+			V_ORDERS.POSNR = VBFA_DEL.POSNV AND
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			V_ORDERS.VBTYP = 'C'
+		--20190328 Modified JOIN to use O2C_BRP_LIPS containing model specific LIPS records - J.Gerard
+	    --JOIN CELONIS_BRP.LIPS AS LIPS ON	
+		JOIN CELONIS.O2C_BRP_LIPS AS LIPS ON
+			VBFA_DEL.MANDT = LIPS.MANDT AND
+			VBFA_DEL.VBELN = LIPS.VBELN AND
+			VBFA_DEL.POSNN = LIPS.POSNR
+			--20190328 Modified JOIN to use O2C_BRP_LIKP containing model specific LIKP records - J.Gerard
+	    --JOIN CELONIS_BRP.LIKP AS LIKP ON
+		JOIN CELONIS.O2C_BRP_LIKP AS LIKP ON
+			LIPS.MANDT = LIKP.MANDT AND
+			LIPS.VBELN = LIKP.VBELN
+		--Using LIPS Select the Delivery/Item as Previous Doc. in VBFA to determine Goods Movement in Subsequent Doc. 
+		--Requires "CELONIS_BRP"."VBFA" records where VBTYP_V = 'J' and VBTYP_N IN ('R','h')
+		JOIN CELONIS_BRP.VBFA AS VBFA_GI ON
+			LIPS.MANDT = VBFA_GI.MANDT AND
+			LIPS.VBELN = VBFA_GI.VBELV AND
+			LIPS.POSNR = VBFA_GI.POSNV AND
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			VBFA_GI.VBTYP_N IN ('R', 'h')
+	--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+/*	WHERE 
+		V_ORDERS.VBTYP = 'C' AND
+		VBFA_GI.VBTYP_N IN ('R', 'h')
+*/
+;
+		
+----------------------------------------------------------------------
+--INSERT Activity: Create Billing Documents
+--BRP_05_12 - Insert Activity: 'Create Billing Documents'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING", 
+		"USER_NAME", 
+		"USER_TYPE",
+		"MANDT",
+		"VBELN",
+		"POSNR",
+		--20190328 Added REF_DOC_TYPE" and "REF_DOC_NO" for Delivery details -J.Gerard
+		"REF_DOC_TYPE",
+		"REF_DOC_NO")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS "_CASE_KEY"
+		,CASE
+			WHEN COALESCE(DD07T_EN.DDTEXT, '') <> '' THEN 'Create ' || DD07T_EN.DDTEXT
+			ELSE 'Create Other Billing Document'
+		END AS "ACTIVITY_EN"
+		, CAST(VBRK.ERDAT AS DATE) || ' ' || CAST(VBRK.ERZET AS TIME) AS "EVENTTIME"
+		, 90 AS "_SORTING"
+		, USR02.BNAME AS "USER_NAME"
+		, USR02.USTYP AS "USER_TYPE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+		--20190328 Added logic for REF_DOC_TYPE and REF_DOC_NO - J.Gerard
+		,DD07T_EN.DDTEXT AS "REF_DOC_TYPE"
+		,VBRK.VBELN AS "REF_DOC_NO"	
+	FROM
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		--20190328 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records - J.Gerard
+	    --JOIN CELONIS_BRP.VBFA AS VBFA ON 1=1
+		JOIN CELONIS.O2C_BRP_VBFA AS VBFA ON 1=1
+			AND V_ORDERS.MANDT = VBFA.MANDT
+			AND V_ORDERS.VBELN = VBFA.VBELV
+			AND V_ORDERS.POSNR = VBFA.POSNV	
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND V_ORDERS.VBTYP = 'C'
+		--20190328 Modified JOIN to use O2C_BRP_VBRK containing model specific VBRK records - J.Gerard
+	    --JOIN CELONIS_BRP.VBRK AS VBRK ON 1=1
+		JOIN CELONIS.O2C_BRP_VBRK AS VBRK ON 1=1
+			AND VBFA.MANDT = VBRK.MANDT
+			AND VBFA.VBELN = VBRK.VBELN
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard 
+			--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+--			AND VBRK.ERDAT >= '20171001'
+			AND VBRK.ERDAT >= add_months(add_days(last_day(current_date), -30), -18)	
+		LEFT JOIN CELONIS_BRP.DD07T AS DD07T_EN ON 1=1
+			AND DD07T_EN.DOMNAME = 'VBTYP'
+			AND DD07T_EN.DDLANGUAGE = 'E'
+			AND DD07T_EN.DOMVALUE_L = VBRK.VBTYP
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON 1=1
+			AND VBRK.MANDT = USR02.MANDT
+			AND VBRK.ERNAM = USR02.BNAME
+		--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+/*	WHERE 
+	    V_ORDERS.VBTYP = 'C' AND
+		--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+	    VBRK.ERDAT >= '20171001'
+*/
+;
+	    
+----------------------------------------------------------------------
+--INSERT Activity: Clear Invoice
+--BRP_05_13 - Insert Activity: 'Clear Invoice'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS "_CASE_KEY"
+		, 'Clear Invoice' AS "ACTIVITY_EN"
+		, CAST(BKPF_PAY.CPUDT AS DATE) || ' ' || CAST(BKPF_PAY.CPUTM AS TIME) AS "EVENTTIME"
+		, 100 AS "_SORTING"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		--20190328 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records - J.Gerard
+	    --JOIN CELONIS_BRP.VBFA AS VBFA ON 1=1
+		JOIN CELONIS.O2C_BRP_VBFA AS VBFA ON 1=1
+			AND V_ORDERS.MANDT = VBFA.MANDT
+			AND V_ORDERS.VBELN = VBFA.VBELV
+			AND V_ORDERS.POSNR = VBFA.POSNV
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND V_ORDERS.VBTYP = 'C'	
+		--20190328 Modified JOIN to use O2C_BRP_VBRK containing model specific VBRK records - J.Gerard
+		--JOIN CELONIS_BRP.VBRK AS VBRK ON 1=1
+		JOIN CELONIS.O2C_BRP_VBRK AS VBRK ON 1=1
+			AND VBFA.MANDT = VBRK.MANDT
+			AND VBFA.VBELN = VBRK.VBELN
+		JOIN CELONIS_BRP.BKPF AS BKPF_INV ON 1=1	
+			AND VBRK.MANDT = BKPF_INV.MANDT
+			AND VBRK.VBELN = BKPF_INV.AWKEY
+			AND BKPF_INV.AWTYP = 'VBRK'
+		JOIN CELONIS_BRP.BSEG AS BSEG ON 1=1
+			AND BSEG.MANDT = BKPF_INV.MANDT
+			AND BSEG.BUKRS = BKPF_INV.BUKRS
+			AND BSEG.BELNR = BKPF_INV.BELNR
+			AND BSEG.GJAHR = BKPF_INV.GJAHR
+			AND BSEG.KOART = 'D'
+		JOIN CELONIS_BRP.BKPF AS BKPF_PAY ON 1=1
+			AND BSEG.MANDT = BKPF_PAY.MANDT
+			AND BSEG.BUKRS = BKPF_PAY.BUKRS
+			AND BSEG.AUGBL = BKPF_PAY.BELNR
+			--20180828 Revised Join statement for selecting 'Clear Invoice' activty date
+			--AND BSEG.GJAHR = BKPF_PAY.GJAHR
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND COALESCE(BSEG.AUGDT, '') <> ''
+			AND YEAR(BSEG.AUGDT) = BKPF_PAY.GJAHR
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+--			AND BKPF_PAY.CPUDT >= '20171001'
+			AND BKPF_PAY.CPUDT >= add_months(add_days(last_day(current_date), -30), -18) 
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+/*	WHERE
+		COALESCE(BSEG.AUGDT, '') <> ''
+		AND V_ORDERS.VBTYP = 'C'
+		--20190327 Revised selection date filter to select Cases with Create Date >= 20171001 - J.Gerard
+		AND BKPF_PAY.CPUDT >= '20171001'
+*/
+;
+
+----------------------------------------------------------------------
+-- 20190710 Richard Garner
+--INSERT Activity: 'Confirm Pick'
+--BRP_05_14 - Insert Activity: 'Confirm Picking'
+ 	INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+	    "_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+	    "USER_TYPE",
+	    "CHANGED_TABLE",
+	    "CHANGED_FIELD",
+	    "CHANGED_FROM",
+	    "CHANGED_TO",
+	    "CHANGE_NUMBER",
+	    "TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR",
+		"REF_DOC_TYPE",
+		"REF_DOC_NO")
+	SELECT 
+	 	LIPS.MANDT||LIPS.VGBEL||LIPS.VGPOS AS "_CASE_KEY"
+	 	,CASE
+	 	    WHEN VBFA_DEL.LGNUM = '' THEN 'IM Picking Confirmation'
+	 	    WHEN VBFA_DEL.LGNUM <> '' THEN 'WM Transfer Order Creation'
+	 	END AS "ACTIVITY_EN"
+	 	
+		,CAST(VBFA_DEL.ERDAT AS DATE) || ' ' || CAST(VBFA_DEL.ERZET AS TIME) AS "EVENTTIME"
+		,70 +
+			CASE
+	 	   	 WHEN VBFA_DEL.LGNUM = '' THEN 6
+	 	   	 WHEN VBFA_DEL.LGNUM <> '' THEN 3
+	 	 	END AS "_SORTING"
+	 	,CDPOS.USERNAME AS "USER_NAME" 
+		,CDPOS.USTYP AS "USER_TYPE" 
+		,CDPOS.TABNAME AS "CHANGED_TABLE" 
+		,CDPOS.FNAME AS "CHANGED_FIELD" 
+		,CDPOS.VALUE_OLD AS "CHANGED_FROM"
+		,CDPOS.VALUE_NEW AS "CHANGED_TO"
+		--,COALESCE(TVLST_OLD.VTEXT, CDPOS.VALUE_OLD) AS "CHANGED_FROM"
+ 		--,COALESCE(TVLST_NEW.VTEXT, CDPOS.VALUE_NEW) AS "CHANGED_TO"
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER" 
+		,CDPOS.TCODE AS "TRANSACTION_CODE"	 	
+		,LIPS.MANDT AS "MANDT"
+		,LIPS.VGBEL AS "VBELN"
+		,LIPS.VGPOS AS "POSNR"
+		,CASE
+			WHEN VBFA_DEL.LGNUM = '' THEN 'IM Picking Confirmation'
+	 		WHEN VBFA_DEL.LGNUM <> '' THEN 'WM Transfer Order Creation'
+	 	END AS "REF_DOC_TYPE"
+		,LIPS.VGBEL ||'_'|| LIPS.VGPOS AS "REF_DOC_NO"
+	FROM
+		CELONIS.O2C_BRP_LIPS AS LIPS 
+	
+		JOIN CELONIS_BRP.VBFA AS VBFA_DEL ON LIPS.MANDT = VBFA_DEL.MANDT 
+		AND LIPS.VBELN = VBFA_DEL.VBELV 
+		AND LIPS.POSNR = VBFA_DEL.POSNV 
+		AND VBFA_DEL.VBTYP_N = 'Q'   -- Picking confirmation from Document Flow	
+	LEFT OUTER JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON CDPOS.MANDANT = VBFA_DEL.MANDT 
+		AND CDPOS.TABKEY = VBFA_DEL.MANDT || VBFA_DEL.VBELV 
+		AND CDPOS.CHNGIND = 'U' 
+		AND CDPOS.TABNAME = 'VBUK' 	
+--		AND CDPOS.FNAME IN ('KOSTK','KOQUK') -- 20190910 added additional Pick confirmation field
+		AND CDPOS.FNAME = 'KOSTK' -- 20191112 settle on KOSTK which appears to be updated at TO creation and stop the activity doubling up.
+		AND CDPOS.VALUE_NEW = 'C'
+;
+----------------------------------------------------------------------------
+--20190710 Richard Garner
+--INSERT Activity: Confirm Pack
+--BRP_05_15 - Insert Activity: 'Confirm Packing'
+
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+	"_CASE_KEY",
+	"ACTIVITY_EN",
+	"EVENTTIME",
+	"_SORTING",
+	"MANDT",
+	"VBELN",
+	"POSNR",
+	"REF_DOC_TYPE",
+	"REF_DOC_NO") 
+	SELECT
+	LIPS.MANDT||LIPS.VGBEL||LIPS.VGPOS AS "_CASE_KEY"
+	,'Packing Confirmed' AS "ACTIVITY_EN"
+	,CAST(VBFA_DEL.ERDAT AS DATE) || ' ' || CAST(VBFA_DEL.ERZET AS TIME) AS "EVENTTIME"
+	,75 AS "_SORTING"
+	,LIPS.MANDT AS "MANDT"
+	,LIPS.VGBEL AS "VBELN"
+	,LIPS.VGPOS AS "POSNR"
+	,'Packing Confirmed' AS "REF_DOC_TYPE"
+	,LIPS.VGBEL ||'_'|| LIPS.VGPOS AS "REF_DOC_NO" 
+FROM CELONIS.O2C_BRP_LIPS AS LIPS JOIN CELONIS_BRP.VBFA AS VBFA_DEL ON 
+LIPS.MANDT = VBFA_DEL.MANDT 
+AND LIPS.VBELN = VBFA_DEL.VBELV 
+AND LIPS.POSNR = VBFA_DEL.POSNV 
+WHERE VBFA_DEL.VBTYP_N = 'X' -- Packing (HU) confimration from Document Flow
+;
+----------------------------------------------------------------------
+--20190710 Richard Garner
+--INSERT Activity: 'Shipment Planned' 
+--BRP_05_16 - Insert Activity: 'Shipment Planned'
+INSERT 
+INTO CELONIS._CEL_O2C_BRP_ACTIVITIES ( "_CASE_KEY",
+	 "ACTIVITY_EN",
+	 "EVENTTIME",
+	 "_SORTING",
+	 "MANDT",
+	 "VBELN",
+	 "POSNR",
+	 "REF_DOC_TYPE",
+	 "REF_DOC_NO") SELECT
+	 LIPS.MANDT||LIPS.VGBEL||LIPS.VGPOS AS "_CASE_KEY" ,
+	'Shipment Planned' AS "ACTIVITY_EN" ,
+	CAST(VBFA_DEL.ERDAT AS DATE) || ' ' || CAST(VBFA_DEL.ERZET AS TIME) AS "EVENTTIME" ,
+	74 AS "_SORTING" ,
+	LIPS.MANDT AS "MANDT" ,
+	LIPS.VGBEL AS "VBELN" ,
+	LIPS.VGPOS AS "POSNR" ,
+	'Shipment Planned'AS "REF_DOC_TYPE" ,
+	LIPS.VGBEL ||'_'|| LIPS.VGPOS AS "REF_DOC_NO" 
+FROM CELONIS.O2C_BRP_LIPS AS LIPS JOIN CELONIS_BRP.VBFA AS VBFA_DEL ON LIPS.MANDT = VBFA_DEL.MANDT 
+AND LIPS.VBELN = VBFA_DEL.VBELV 
+WHERE VBFA_DEL.VBTYP_N = '8' -- Shipment from Document Flow	
+;
+ ---------------------------------------------------------------------
+--INSERT Activity: 'WM TO Confirmation'
+--BRP_05_17 - Insert Activity: 'WM TO Confirmation'
+INSERT 
+INTO CELONIS._CEL_O2C_BRP_ACTIVITIES ( "_CASE_KEY",
+	 "ACTIVITY_EN",
+	 "EVENTTIME",
+	 "_SORTING",
+	 "USER_NAME",
+	 "USER_TYPE",
+	 "CHANGED_TABLE",
+	 "CHANGED_FIELD",
+	 "CHANGED_FROM",
+	 "CHANGED_TO",
+	 "CHANGE_NUMBER",
+	 "TRANSACTION_CODE",
+	 "MANDT",
+	 "VBELN",
+	 "POSNR") SELECT
+	 DISTINCT LIPS.MANDT||LIPS.VGBEL||LIPS.VGPOS AS "_CASE_KEY" ,
+	'WM TO item Confirmation' AS "ACTIVITY_EN" ,
+	CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS "EVENTTIME" ,
+	76 AS "_SORTING" ,
+	CDPOS.USERNAME AS "USER_NAME" ,
+	CDPOS.USTYP AS "USER_TYPE" ,
+	CDPOS.TABNAME AS "CHANGED_TABLE" ,
+	CDPOS.FNAME AS "CHANGED_FIELD" ,
+	CDPOS.VALUE_OLD AS "CHANGED_FROM" ,
+	CDPOS.VALUE_NEW AS "CHANGED_TO" --,COALESCE(TVLST_OLD.VTEXT, CDPOS.VALUE_OLD) AS "CHANGED_FROM"
+ --,COALESCE(TVLST_NEW.VTEXT, CDPOS.VALUE_NEW) AS "CHANGED_TO"
+ ,
+	CDPOS.CHANGENR AS "CHANGE_NUMBER" ,
+	CDPOS.TCODE AS "TRANSACTION_CODE" ,
+	LIPS.MANDT AS "MANDT" ,
+	LIPS.VGBEL AS "VBELN" ,
+	LIPS.VGPOS AS "POSNR" 
+FROM CELONIS.O2C_BRP_LIPS AS LIPS JOIN CELONIS_BRP.VBFA AS VBFA_DEL ON LIPS.MANDT = VBFA_DEL.MANDT 
+AND LIPS.VBELN = VBFA_DEL.VBELV 
+AND LIPS.POSNR = VBFA_DEL.POSNV 
+AND VBFA_DEL.VBTYP_N = 'Q' 
+AND VBFA_DEL.LGNUM <> '' JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON CDPOS.MANDANT = VBFA_DEL.MANDT 
+AND CDPOS.TABKEY = VBFA_DEL.MANDT || VBFA_DEL.VBELV 
+AND CDPOS.CHNGIND = 'U' 
+AND CDPOS.TABNAME = 'VBUK' 
+AND CDPOS.FNAME = 'LVSTK' 
+AND CDPOS.VALUE_NEW = 'C' 
+;
+-----------------------------------------------------------------------
+
+--INSERT Activity: Changes (Sales Order Item)
+--BRP_05_18 - Header Change to Ship-To Party 
+	INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+		
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+		,'Change Ship-To (Header)' AS  "ACTIVITY_EN"
+		,TO_DATE(CDPOS.UDATE, 'YYYY-MM-DD') || ' ' ||  TO_TIME(IFNULL(CDPOS.UTIME, '23:59:59'), 'HH24:MI:SS') AS "EVENTTIME"
+		,53 AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,LTRIM(CDPOS.VALUE_OLD) AS "CHANGED_FROM"
+		,LTRIM(CDPOS.VALUE_NEW) AS "CHANGED_TO"
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			V_ORDERS.VBTYP='C' AND
+			CDPOS.MANDANT = V_ORDERS.MANDT AND
+			CDPOS.TABKEY = V_ORDERS.MANDT || V_ORDERS.VBELN ||'000000WE'
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND CDPOS.TABNAME IN ('VBPA') -- 20190828 Schedule Line and Partnrr added
+			AND CDPOS.CHNGIND = 'U'
+			AND CDPOS.FNAME IN ('KUNNR')
+--			AND RIGHT(CDPOS.TABKEY,2) = 'WE' AND SUBSTRING(CDPOS.TABKEY, 14,6) = '000000'
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			USR02.MANDT = CDPOS.MANDANT AND
+			USR02.BNAME = CDPOS.USERNAME
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+/*	WHERE 
+		CDPOS.CHNGIND = 'U'
+		AND CDPOS.FNAME IN ('ABGRU', 'NETPR', 'SPART', 'LFMNG', 'MATNR', 'WERKS', 'ROUTE', 'FAKSP')
+		AND CDPOS.TABNAME = 'VBAP'
+		AND V_ORDERS.VBTYP='C'
+*/
+;
+
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+--INSERT Activity: Change to Original Requested date     20200420
+--BRP_05_19 - Insert Activity:'Change Original Requested Date'
+	INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGED_FROM_FLOAT",
+		"CHANGED_TO_FLOAT",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT
+		V_ORDERS._CASE_KEY AS "_CASE_KEY"
+		,CASE
+			WHEN VBEP.BMENG > 0 THEN 'Change Promise Date'
+			WHEN VBEP.WMENG > 0 THEN 'Change Original Requested Date' 
+		END AS "ACTIVITY_EN"
+		,TO_DATE(CDPOS.UDATE, 'YYYY-MM-DD') || ' ' ||  TO_TIME(IFNULL(CDPOS.UTIME, '23:59:59'), 'HH24:MI:SS') AS "EVENTTIME"
+		,CASE
+			WHEN VBEP.BMENG > 0 THEN 57
+			WHEN VBEP.WMENG > 0 THEN 51 
+		END AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,LTRIM(CDPOS.VALUE_OLD) AS "CHANGED_FROM"
+		,LTRIM(CDPOS.VALUE_NEW) AS "CHANGED_TO"
+		,NULL AS "CHANGED_FROM_FLOAT"
+		,NULL AS "CHANGED_TO_FLOAT"
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			V_ORDERS.VBTYP= 'C' AND
+			CDPOS.MANDANT = V_ORDERS.MANDT AND
+--			CDPOS.TABKEY = V_ORDERS._CASE_KEY
+			SUBSTRING(CDPOS.TABKEY,1,19) = V_ORDERS._CASE_KEY
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND CDPOS.TABNAME = 'VBEP' -- 20190828 Schedule Line and Partnrr added
+			AND CDPOS.CHNGIND = 'U'
+			AND CDPOS.FNAME = 'EDATU'
+--	Check that the scedule line has a requirement quantity in it.
+ 		LEFT JOIN CELONIS.O2C_BRP_VBEP AS VBEP ON 
+			VBEP.MANDT = SUBSTRING(CDPOS.TABKEY,1,3)
+			AND VBEP.VBELN = SUBSTRING(CDPOS.TABKEY,4,10)
+      		AND VBEP.POSNR = SUBSTRING(CDPOS.TABKEY,14,6)
+			AND VBEP.ETENR = SUBSTRING(CDPOS.TABKEY,20,4)				
+			--AND VBEP.WMENG > 0
+		
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			USR02.MANDT = CDPOS.MANDANT AND
+			USR02.BNAME = CDPOS.USERNAME
+;
+
+--------------------------------------------------------------------------------------
+--INSERT Activity: 'Create Subsequent Purchase Order'    
+--BRP_05_20 - Insert Activity: 'Create Subsequent Purchase Order'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING", 
+		"USER_NAME", 
+		"USER_TYPE",
+		"MANDT",
+		"VBELN",
+		"POSNR",
+		"REF_DOC_TYPE",
+		"REF_DOC_NO") 
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS "_CASE_KEY"
+  		, 'Create Subsequent Purchase Order' AS "ACTIVITY_EN"
+		, CAST(VBFA.ERDAT AS DATE) || ' ' || CAST(VBFA.ERZET AS TIME) AS "EVENTTIME"
+		, 60 AS "_SORTING"
+		, USR02.BNAME AS "USER_NAME"
+		, USR02.USTYP AS "USER_TYPE"
+		, V_ORDERS.MANDT AS "MANDT"
+		, V_ORDERS.VBELN AS "VBELN"
+		, V_ORDERS.POSNR AS "POSNR"
+		--20190328 Added logic for REF_DOC_TYPE and REF_DOC_NO - J.Gerard
+		, '' AS "REF_DOC_TYPE"
+		, VBFA.VBELN AS "REF_DOC_NO"	
+	FROM
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		--20190328 Modified JOIN to use O2C_BRP_VBFA containing model-specific VBFA records - J.Gerard
+	    --JOIN CELONIS_BRP.VBFA AS VBFA ON 1=1
+		JOIN CELONIS.O2C_BRP_VBFA AS VBFA ON 1=1
+			AND V_ORDERS.MANDT = VBFA.MANDT
+			AND V_ORDERS.VBELN = VBFA.VBELV
+			AND V_ORDERS.POSNR = VBFA.POSNV	
+			AND V_ORDERS.VBTYP = 'C'
+			AND VBFA.VBTYP_N = 'V'
+		
+		LEFT JOIN CELONIS_BRP.EKKO AS EKKO ON 1=1
+			AND VBFA.MANDT = EKKO.MANDT
+			AND VBFA.VBELN = EKKO.EBELN
+			
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON 1=1
+			AND EKKO.MANDT = USR02.MANDT
+			AND EKKO.ERNAM = USR02.BNAME
+;
+
+-----------------------------------------------------------------------
+
+--INSERT Activity: Header Change to Payment Terms
+--BRP_05_21 - Header Change to Payment Terms 
+	INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR",
+		"CHANGED_FROM_FLOAT",
+		"CHANGED_TO_FLOAT"
+		)
+		
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+		,'Change Payment Terms (Header)' AS  "ACTIVITY_EN"
+		,TO_DATE(CDPOS.UDATE, 'YYYY-MM-DD') || ' ' ||  TO_TIME(IFNULL(CDPOS.UTIME, '23:59:59'), 'HH24:MI:SS') AS "EVENTTIME"
+		,55 AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,LTRIM(CDPOS.VALUE_OLD) AS "CHANGED_FROM"
+		,LTRIM(CDPOS.VALUE_NEW) AS "CHANGED_TO"
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+		--		20191206 Start - determination of days impact for change to terms			
+		,CASE WHEN (COALESCE(T052_OLD.ZTAG1,'') <> '000' AND   COALESCE(T052_OLD.ZTAG1,'') <> '') AND COALESCE(T052_OLD.ZSMN1,'') = '00' AND COALESCE(T052_OLD.ZMONA,'') = '00'   
+     				THEN  T052_OLD.ZTAG1
+				WHEN (COALESCE(T052_OLD.ZTAG1,'') = '000' AND   COALESCE(T052_OLD.ZTAG1,'') = '') AND COALESCE(T052_OLD.ZSMN1,'') <> '00' AND COALESCE(T052_OLD.ZMONA,'') = '00'   
+					THEN  DAYS_BETWEEN (ADD_DAYS(LAST_DAY(ADD_MONTHS( V_ORDERS.FKDAT,(T052_OLD.ZSMN1-1))),T052_OLD.ZSTG1 ),V_ORDERS.FKDAT)
+				WHEN (COALESCE(T052_OLD.ZTAG1,'') = '000' AND   COALESCE(T052_OLD.ZTAG1,'') = '') AND COALESCE(T052_OLD.ZSMN1,'') = '00' AND COALESCE(T052_OLD.ZMONA,'') <> '00'   
+					THEN  DAYS_BETWEEN (ADD_DAYS(LAST_DAY(ADD_MONTHS( V_ORDERS.FKDAT,(T052_OLD.ZMONA-1))),T052_OLD.ZFAEL ),V_ORDERS.FKDAT) 
+				ELSE NULL
+		 END AS "CHANGED_FROM_FLOAT"
+		,CASE WHEN (COALESCE(T052_NEW.ZTAG1,'') <> '000' AND   COALESCE(T052_NEW.ZTAG1,'') <> '') AND COALESCE(T052_NEW.ZSMN1,'') = '00' AND COALESCE(T052_NEW.ZMONA,'') = '00'   
+     				THEN  T052_NEW.ZTAG1
+				WHEN (COALESCE(T052_NEW.ZTAG1,'') = '000' AND   COALESCE(T052_NEW.ZTAG1,'') = '') AND COALESCE(T052_NEW.ZSMN1,'') <> '00' AND COALESCE(T052_NEW.ZMONA,'') = '00'   
+					THEN  DAYS_BETWEEN (ADD_DAYS(LAST_DAY(ADD_MONTHS( V_ORDERS.FKDAT,(T052_NEW.ZSMN1-1))),T052_NEW.ZSTG1 ),V_ORDERS.FKDAT)
+				WHEN (COALESCE(T052_NEW.ZTAG1,'') = '000' AND   COALESCE(T052_NEW.ZTAG1,'') = '') AND COALESCE(T052_NEW.ZSMN1,'') = '00' AND COALESCE(T052_NEW.ZMONA,'') <> '00'   
+					THEN  DAYS_BETWEEN (ADD_DAYS(LAST_DAY(ADD_MONTHS( V_ORDERS.FKDAT,(T052_NEW.ZMONA-1))),T052_OLD.ZFAEL ),V_ORDERS.FKDAT) 
+				ELSE NULL
+			END AS  "CHANGED_TO_FLOAT"
+--		20191206 End - determination of days impact for change to terms	
+		
+--		,T052F.TEXT1 AS "CHANGED_FROM_FLOAT"
+--		,T052T.TEXT1 AS "CHANGED_TO_FLOAT"
+
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			V_ORDERS.VBTYP='C' AND
+			CDPOS.MANDANT = V_ORDERS.MANDT AND
+			CDPOS.TABKEY = V_ORDERS.MANDT || V_ORDERS.VBELN ||'000000'
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND CDPOS.TABNAME IN ('VBKD') -- 20190828 Schedule Line and Partnrr added
+			AND CDPOS.CHNGIND = 'U'
+			AND CDPOS.FNAME IN ('ZTERM')
+--			AND RIGHT(CDPOS.TABKEY,2) = 'WE' AND SUBSTRING(CDPOS.TABKEY, 14,6) = '000000'
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			USR02.MANDT = CDPOS.MANDANT AND
+			USR02.BNAME = CDPOS.USERNAME
+	/*	LEFT JOIN CELONIS_BRP.T052U AS T052F ON
+			T052F.MANDT = CDPOS.MANDANT AND
+			T052F.SPRAS = 'EN' AND
+			T052F.ZTERM = LTRIM(CDPOS.VALUE_OLD)
+		LEFT JOIN CELONIS_BRP.T052U AS T052T ON 
+			T052T.MANDT = CDPOS.MANDANT AND
+			T052T.SPRAS = 'EN' AND
+			T052T.ZTERM = LTRIM(CDPOS.VALUE_NEW)	*/
+		-- 20191206 Payment terms config
+		LEFT JOIN CELONIS_BRP.T052 AS T052_OLD ON 1=1
+			AND	CDPOS.VALUE_OLD = T052_OLD.ZTERM
+			AND CDPOS.MANDANT = T052_OLD.MANDT
+		LEFT JOIN CELONIS_BRP.T052 AS T052_NEW ON 1=1
+			AND	CDPOS.VALUE_NEW = T052_NEW.ZTERM
+			AND CDPOS.MANDANT = T052_NEW.MANDT
+;
+--------------------------------------------------------------------------
+--INSERT Activity: Billing Blocks Change Tax Classification on sales document header. 20200420
+--BRP_05_25 - Insert Activity: 'Chnage Tax Classification (header)'
+INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT DISTINCT
+		V_ORDERS._CASE_KEY AS _CASE_KEY
+	 	,'Change Tax Classification (Header)' AS  "ACTIVITY_EN"
+		,CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS "EVENTTIME"
+		,40 AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,CDPOS.VALUE_OLD AS "CHANGED_FROM"  -- 20191112 Correction to be consistent with all Blocks
+		,CDPOS.VALUE_NEW AS "CHANGED_TO"	-- 20191112 Correction		
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON 1=1
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND V_ORDERS.VBTYP = 'C'
+			AND CDPOS.MANDANT = V_ORDERS.MANDT
+			AND CDPOS.TABKEY = V_ORDERS.TABKEY_VBAK
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND CDPOS.TABNAME = 'VBAK'
+			AND CDPOS.FNAME = 'TAXKI'
+			AND CDPOS.CHNGIND = 'U'
+			AND COALESCE(CDPOS.UDATE, '') <> ''
+			AND CAST(CAST(CDPOS.UDATE AS DATE) || ' ' || CAST(CDPOS.UTIME AS TIME) AS TIMESTAMP) >= TS_VBAP_ERDAT	
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON 1=1 
+			AND USR02.MANDT = CDPOS.MANDANT
+			AND USR02.BNAME = CDPOS.USERNAME
+		LEFT JOIN CELONIS_BRP.TVFST AS TVFST_NEW ON 1=1
+			AND TVFST_NEW.MANDT = CDPOS.MANDANT
+			AND TVFST_NEW.FAKSP = CDPOS.VALUE_NEW
+			AND TVFST_NEW.SPRAS = 'E'
+		LEFT JOIN CELONIS_BRP.TVFST AS TVFST_OLD ON 1=1
+			AND TVFST_OLD.MANDT = CDPOS.MANDANT
+			AND TVFST_OLD.FAKSP = CDPOS.VALUE_OLD
+			AND TVFST_OLD.SPRAS = 'E'
+	--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+;
+
+------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------
+--INSERT Activity: Change to Promise Date   20200420
+--BRP_05_26 - Insert Activity:'Change Promise Date'
+	INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGED_FROM_FLOAT",
+		"CHANGED_TO_FLOAT",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT
+		V_ORDERS._CASE_KEY AS "_CASE_KEY"
+		,'Change Promise Date' AS "ACTIVITY_EN"
+		,TO_DATE(CDPOS.UDATE, 'YYYY-MM-DD') || ' ' ||  TO_TIME(IFNULL(CDPOS.UTIME, '23:59:59'), 'HH24:MI:SS') AS "EVENTTIME"
+		,57 AS "_SORTING"
+		,CDPOS.USERNAME AS "USER_NAME"
+		,USR02.USTYP AS "USER_TYPE"
+		,CDPOS.TABNAME AS "CHANGED_TABLE"
+		,CDPOS.FNAME AS "CHANGED_FIELD"
+		,LTRIM(CDPOS.VALUE_OLD) AS "CHANGED_FROM"
+		,LTRIM(CDPOS.VALUE_NEW) AS "CHANGED_TO"
+		,NULL AS "CHANGED_FROM_FLOAT"
+		,NULL AS "CHANGED_TO_FLOAT"
+		,CDPOS.CHANGENR AS "CHANGE_NUMBER"
+		,CDPOS.TCODE AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS
+		JOIN CELONIS.TMP_O2C_BRP_CDHDR_CDPOS AS CDPOS ON
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			V_ORDERS.VBTYP= 'C' AND
+			CDPOS.MANDANT = V_ORDERS.MANDT AND
+--			CDPOS.TABKEY = V_ORDERS._CASE_KEY
+			SUBSTRING(CDPOS.TABKEY,1,19) = V_ORDERS._CASE_KEY
+			--20190328 Moved WHERE statement to JOIN statement - J.Gerard
+			AND CDPOS.TABNAME = 'VBEP' -- 20190828 Schedule Line and Partnrr added
+			AND CDPOS.CHNGIND = 'I'
+			AND CDPOS.FNAME = 'KEY'
+--	Check that the scedule line has a requirement quantity in it.
+ 		JOIN CELONIS.O2C_BRP_VBEP AS VBEP ON 
+			VBEP.MANDT = SUBSTRING(CDPOS.TABKEY,1,3)
+			AND VBEP.VBELN = SUBSTRING(CDPOS.TABKEY,4,10)
+      		AND VBEP.POSNR = SUBSTRING(CDPOS.TABKEY,14,6)
+			AND VBEP.ETENR = SUBSTRING(CDPOS.TABKEY,20,4)				
+			AND VBEP.BMENG > 0
+		
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			USR02.MANDT = CDPOS.MANDANT AND
+			USR02.BNAME = CDPOS.USERNAME
+;
+
+
+-------------------------------------------------------------------------
+--INSERT Activity: Additional Item Created   20200420
+--BRP_05_27 - Insert Activity:'Additional Item Created'
+	INSERT INTO CELONIS._CEL_O2C_BRP_ACTIVITIES (
+		"_CASE_KEY",
+		"ACTIVITY_EN",
+		"EVENTTIME",
+		"_SORTING",
+		"USER_NAME",
+		"USER_TYPE",
+		"CHANGED_TABLE",
+		"CHANGED_FIELD",
+		"CHANGED_FROM",
+		"CHANGED_TO",
+		"CHANGED_FROM_FLOAT",
+		"CHANGED_TO_FLOAT",
+		"CHANGE_NUMBER",
+		"TRANSACTION_CODE",
+		"MANDT",
+		"VBELN",
+		"POSNR")
+	SELECT
+		V_ORDERS._CASE_KEY AS "_CASE_KEY"
+		,'Additional Item Created' AS "ACTIVITY_EN"
+		,TS_VBAP_ERDAT AS "EVENTTIME"
+		,11 AS "_SORTING"
+		,CAST(V_ORDERS.VBAK_ERDAT|| ' ' || V_ORDERS.ERZET AS TIMESTAMP) as "HEADER TMESTAMP"
+		,V_ORDERS.ERNAM AS "USER_NAME"
+--		,USR02.USTYP AS "USER_TYPE"
+		,'VBAP'AS "CHANGED_TABLE"
+		,'INSERT' "CHANGED_FIELD"
+		,NULL AS "CHANGED_FROM"
+		,NULL AS "CHANGED_TO"
+		,NULL AS "CHANGED_FROM_FLOAT"
+		,SECONDS_BETWEEN(CAST(V_ORDERS.VBAK_ERDAT|| ' ' || V_ORDERS.ERZET AS TIMESTAMP), V_ORDERS.TS_VBAP_ERDAT) AS "CHANGED_TO_FLOAT"
+		,NULL AS "CHANGE_NUMBER"
+		,NULL AS "TRANSACTION_CODE"
+		,V_ORDERS.MANDT AS "MANDT"
+		,V_ORDERS.VBELN AS "VBELN"
+		,V_ORDERS.POSNR AS "POSNR"
+
+	FROM 
+		CELONIS.TMP_O2C_BRP_VBAK_VBAP AS V_ORDERS		
+		LEFT JOIN CELONIS_BRP.USR02 AS USR02 ON
+			USR02.MANDT = V_ORDERS.MANDT AND
+			USR02.BNAME = V_ORDERS.ERNAM
+		where SECONDS_BETWEEN(CAST(V_ORDERS.VBAK_ERDAT|| ' ' || V_ORDERS.ERZET AS TIMESTAMP), V_ORDERS.TS_VBAP_ERDAT) > 300
+
+
+;
+-----------------------------------------------------------------------
+--BRP_06_01 DELETE null EVENTTIME records from _CEL_O2C_BRP_ACTIVITIES
+	DELETE FROM
+	    CELONIS._CEL_O2C_BRP_ACTIVITIES
+	WHERE
+	    "EVENTTIME" IS NULL
+	;
+	
+--BRP_06_02 DELETE null ACTIVITY_EN records from _CEL_O2C_BRP_ACTIVITIES  
+	DELETE FROM
+	    CELONIS._CEL_O2C_BRP_ACTIVITIES
+	WHERE
+	    "ACTIVITY_EN" IS NULL
+	;
+
+
+------------------------------------------------------------------------
+--BRP_07_01 - Update CHANGED_TABLE_TEXT_EN  Table Name in _CEL_O2C_BRP_ACTIVITIES Table
+	UPDATE 
+	    ACT
+	SET 
+	    ACT."CHANGED_TABLE_TEXT_EN" = NAME_MAPPING_TABLES_EN.PRETTY_NAME
+	FROM
+	    CELONIS."_CEL_O2C_BRP_ACTIVITIES" AS ACT
+	    JOIN CELONIS."O2C_GLOBAL_NAME_MAPPING_TABLES" AS NAME_MAPPING_TABLES_EN ON 1=1
+	        AND ACT."CHANGED_TABLE" = NAME_MAPPING_TABLES_EN."TABLE_NAME" 
+	        AND NAME_MAPPING_TABLES_EN."LANGUAGE" = 'E'
+	;
+	
+---BRP_07_02 - Update CHANGED_FIELD_TEXT_EN Field Name in _CEL_O2C_BRP_ACTIVITIES Table
+	UPDATE 
+	    ACT
+	SET 
+	    ACT."CHANGED_FIELD_TEXT_EN" = NAME_MAPPING_COLUMNS_EN.PRETTY_NAME
+	FROM
+	    CELONIS."_CEL_O2C_BRP_ACTIVITIES" AS ACT
+	    JOIN CELONIS."O2C_GLOBAL_NAME_MAPPING_COLUMNS" AS NAME_MAPPING_COLUMNS_EN ON 1=1 
+	        AND ACT."CHANGED_TABLE" = NAME_MAPPING_COLUMNS_EN."TABLE_NAME" 
+	        AND ACT."CHANGED_FIELD" = NAME_MAPPING_COLUMNS_EN."FIELD_NAME" 
+	        AND NAME_MAPPING_COLUMNS_EN."LANGUAGE" = 'E'
+	;
+
+--BRP_07_03 - Update the Material CHnage Indicatio onb the sales Order Item : 20190710  R.Garner
+
+		
+		UPDATE I2_VBAP
+		SET MATNR_CHG_IND ='X'
+		FROM 
+			CELONIS.O2C_BRP_VBAP I2_VBAP
+			INNER JOIN "CELONIS_BRP"."CDPOS" on TABKEY = I2_VBAP.MANDT||I2_VBAP.VBELN||I2_VBAP.POSNR
+				WHERE FNAME = 'MATNR' AND OBJECTCLAS = 'VERKBELEG' AND TABNAME = 'VBAP';
+				
+------------------------------------------------------------------------
+---BRP_07_04 - Update Ship-To country information for item specific Ship-Tos 20200304
+	UPDATE 
+	    VBAP
+	SET 
+	    VBAP.ADRDA = VBPA.ADRDA,
+		VBAP.LAND1 = VBPA.LAND1,
+		VBAP.DEST_CTRY = T005TS.LANDX
+	    
+	FROM
+	    
+	    CELONIS."O2C_BRP_VBAP" AS VBAP
+	    JOIN CELONIS_BRP.VBPA AS VBPA ON 1=1
+		   AND VBPA.MANDT = VBAP.MANDT
+		   AND VBPA.VBELN = VBAP.VBELN
+		   AND VBPA.PARVW = 'WE'
+		   AND VBPA.POSNR = VBAP.POSNR
+		JOIN CELONIS_BRP.T005T AS T005TS ON 1=1
+			AND T005TS.MANDT = VBPA.MANDT
+			AND T005TS.SPRAS = 'E'
+			AND T005TS.LAND1 = VBPA.LAND1    
+	;
+	
+	
+----------------------------------------------------------------
+--BRP_08_01 Calculate the Previous and Succeeding Block TIme events 
+	UPDATE A SET 
+		A.PREV_BLOCK_TIME = NEW_EVENTTIMES.PREVIOUS_BLOCK_EVENTTIME
+		,A.NEXT_BLOCK_TIME = NEW_EVENTTIMES.NEXT_BLOCK_EVENTTIME
+	FROM "CELONIS"."_CEL_O2C_BRP_ACTIVITIES" A
+	JOIN (
+		SELECT 
+			_CASE_KEY
+			, EVENTTIME
+			, _SORTING
+			, ACTIVITY_EN 
+			, LEAD(EVENTTIME) 
+				OVER (
+					-- partition also by changed field as delivery blocks happen on multiple level and those are mutually exclusive
+					PARTITION BY _CASE_KEY,  (CHANGED_TABLE || CHANGED_FIELD)
+					ORDER BY EVENTTIME ASC, _SORTING ASC
+				) 
+			AS NEXT_BLOCK_EVENTTIME
+			, LAG(EVENTTIME) 
+				OVER (
+					-- partition also by changed field as delivery blocks happen on multiple level and those are mutually exclusive
+					PARTITION BY _CASE_KEY,  (CHANGED_TABLE || CHANGED_FIELD)
+					ORDER BY EVENTTIME ASC, _SORTING ASC
+				) 
+			AS PREVIOUS_BLOCK_EVENTTIME 
+		FROM "CELONIS"."_CEL_O2C_BRP_ACTIVITIES" 
+		WHERE 1=1
+			--AND VBELN = '0001875432'
+			--AND POSNR = '000070'
+			AND CHANGED_FIELD IN ('LIFSK', 'LIFSP') 
+			AND CHANGED_TABLE IN ('VBAK', 'VBEP')
+		) AS NEW_EVENTTIMES
+	ON 1=1 
+		AND A._CASE_KEY = NEW_EVENTTIMES._CASE_KEY
+		AND A.EVENTTIME = NEW_EVENTTIMES.EVENTTIME
+		AND A._SORTING = NEW_EVENTTIMES._SORTING
+		AND A.ACTIVITY_EN = NEW_EVENTTIMES.ACTIVITY_EN
+	;
+
+--------------------------------------------------------------
+--20190328 Added DROP COLUMN TABLE:  CELONIS.TMP_O2C_BRP_VBFA
+--20190328 - Commented out DROP COLUMN table; Not utilized in this data model -J.Gerard
+--BRP_09_01 - DROP COLUMN TABLE: TMP_O2C_BRP_VBFA
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'TMP_O2C_BRP_VBFA');
+
+-- BRP_09_02 - Drop Column Table CELONIS_BRP.TMP_O2C_BRP_VBAK_VBAP
+--20190328 - Commented out DROP COLUMN table; keep for troubleshooting data model -J.Gerard
+--CALL CELONIS.DROP_IF_EXISTS ('CELONIS', 'TMP_O2C_BRP_VBAK_VBAP');
+
+
+	-------------------------------------------------------------------
+	-------------- © 2017 CELONIS SE ALL RIGHTS RESERVED --------------
+	-------------------------------------------------------------------;
+	-------------------------------------
+
+	-- eof
+END;
